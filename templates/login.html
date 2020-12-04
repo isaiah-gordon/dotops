@@ -1,0 +1,91 @@
+  <!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Login</title>
+
+    <!-- Import some nice fonts from Google -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet">
+
+    <style>
+      body {
+        background-color: black;
+        font-family: 'Arial';
+        color: white;
+      }
+
+      .center {
+        background: black;
+        margin: auto;
+        margin-top: 100px;
+        width: 50vh;
+        max-width: 70%;
+      }
+
+      .logo {
+        width: 100%;
+        margin-bottom: 30px;
+      }
+
+      .input {
+        width: 94%;
+        margin-top: 5%;
+        height: 10vh;
+        max-height: 70px;
+
+        font-size: 20px;
+        padding-left: 5%;
+        background-color: grey;
+        color: white;
+        border: 0px;
+      }
+
+      ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+        font-family: 'Josefin Sans';
+        color: #b6b6b6;
+        opacity: 1; /* Firefox */
+      }
+
+      .button {
+        margin-top: 5%;
+        margin-left: 35%;
+        width: 30%;
+        height: 70px;
+        background-color: #ffd966ff;
+        border: 0px;
+
+        font-weight: bold;
+        font-size: 20px;
+        font-family: 'Josefin Sans';
+      }
+
+      .button:hover {
+        background-color: #edbd2aff;
+      }
+
+      .error {
+        color: red;
+      }
+
+    </style>
+
+  </head>
+  <body>
+    <div class="center">
+      <img class="logo" src="static/logo.png">
+
+      <form action="" method="post">
+        <input class="input" placeholder="MANAGER CODE" type="text" name="username" value="{{ request.form.username }}">
+        <input class="input" placeholder="PIN" type="password" name="password" value="{{ request.form.password }}">
+        <input class="button" type="submit" value="Login">
+      </form>
+
+      {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}
+      {% endif %}
+
+    </div>
+
+  </body>
+</html>
