@@ -1,10 +1,11 @@
 import mysql.connector
 from mysql.connector.constants import ClientFlag
+import secrets
 
 config = {
-    'user': 'dotops-sql',
-    'password': 'Lmos0MzMm7lksF75',
-    'host': '34.74.49.76',
+    'user': secrets.user,
+    'password': secrets.password,
+    'host': secrets.host,
     'client_flags': [ClientFlag.SSL],
     'ssl_ca': 'ssl/server-ca.pem',
     'ssl_cert': 'ssl/client-cert.pem',
