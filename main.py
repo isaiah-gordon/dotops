@@ -30,7 +30,7 @@ def auth_required(f):
 def login():
     error = None
     if request.method == 'POST':
-        if request.form['username'] != 'admin' or request.form['password'] != 'admin':
+        if request.form['username'] != '40469' or request.form['password'] != 'password':
             error = 'Invalid Credentials. Please try again.'
         else:
             token = jwt.encode({'user': request.form['username'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)}, app.config['SECRET_KEY'])
