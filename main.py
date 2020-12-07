@@ -40,9 +40,13 @@ def login():
 
     return render_template('login.html', error=error)
 
-@app.route('/control')
+@app.route('/control', methods=['GET', 'POST'])
 @auth_required
 def control():
+    options = [{'name':'fry'},{'name':'pie'}]
+    if request.method == 'POST':
+        pass
+
     return render_template('control.html')
 
 if __name__ == '__main__':
