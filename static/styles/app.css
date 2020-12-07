@@ -1,0 +1,54 @@
+  body {
+    margin:0;
+    background-color: black;
+  }
+
+  .topnav {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: black;
+    position: sticky;
+    top: 0;
+    width: 100%;
+  }
+
+  .button {
+    margin-top: 7%;
+    margin-left: 35%;
+    width: 30%;
+    height: 70px;
+    background-color: #ffd966ff;
+    border: 0px;
+
+    font-weight: bold;
+    font-size: 20px;
+    font-family: 'Josefin Sans';
+  }
+
+  .button:hover {
+    background-color: #edbd2aff;
+  }
+
+  .input {
+    width: 94%;
+    margin-top: 5%;
+    height: 10vh;
+    max-height: 70px;
+
+    font-size: 20px;
+    padding-left: 5%;
+    background-color: grey;
+    color: white;
+    border: 0px;
+  }
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    font-family: 'Josefin Sans';
+    color: #b6b6b6;
+    opacity: 1; /* Firefox */
+}
+
+.error {
+    color: red;
+}

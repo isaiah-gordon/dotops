@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet">
 
+    <link href="static/styles/app.css" rel="stylesheet">
+
     <style>
       body {
         background-color: black;
@@ -28,52 +30,12 @@
         margin-bottom: 30px;
       }
 
-      .input {
-        width: 94%;
-        margin-top: 5%;
-        height: 10vh;
-        max-height: 70px;
-
-        font-size: 20px;
-        padding-left: 5%;
-        background-color: grey;
-        color: white;
-        border: 0px;
-      }
-
-      ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-        font-family: 'Josefin Sans';
-        color: #b6b6b6;
-        opacity: 1; /* Firefox */
-      }
-
-      .button {
-        margin-top: 5%;
-        margin-left: 35%;
-        width: 30%;
-        height: 70px;
-        background-color: #ffd966ff;
-        border: 0px;
-
-        font-weight: bold;
-        font-size: 20px;
-        font-family: 'Josefin Sans';
-      }
-
-      .button:hover {
-        background-color: #edbd2aff;
-      }
-
-      .error {
-        color: red;
-      }
-
     </style>
 
   </head>
   <body>
     <div class="center">
-      <img class="logo" src="static/logo.png">
+      <img class="logo" src="static/images/logo.png">
 
       <form action="" method="post">
         <input class="input" placeholder="STORE NUMBER" type="text" name="username" value="{{ request.form.username }}">

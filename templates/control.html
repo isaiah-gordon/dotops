@@ -8,37 +8,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet">
 
+    <link href="static/styles/app.css" rel="stylesheet">
+
     <style>
       body {
         margin:0;
         background-color: black;
-      }
-
-      .topnav {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        background-color: black;
-        position: sticky;
-        top: 0;
-        width: 100%;
-      }
-
-      .button {
-        margin-top: 7%;
-        margin-left: 35%;
-        width: 30%;
-        height: 70px;
-        background-color: #ffd966ff;
-        border: 0px;
-
-        font-weight: bold;
-        font-size: 20px;
-        font-family: 'Josefin Sans';
-      }
-
-      .button:hover {
-        background-color: #edbd2aff;
       }
 
       .logo {
@@ -49,15 +24,19 @@
       }
     </style>
 
+    <script type=text/javascript>
+
+    </script>
+
   </head>
   <body>
 
     <div class='topnav'>
-      <li><img class="logo" src="static/logo.png"></li>
+      <li><img class="logo" src="static/images/logo.png"></li>
     </div>
 
-    <form action="" method="post">
-      <select class="button" name="products">
+    <form action="{{ url_for('control') }}" method="post">
+      <select class="button" name="products" onchange='this.form.submit();'>
         <option value="donut">Donuts</option>
         <option value="muffin">Muffins</option>
         <option value="pie">Apple Pie</option>
@@ -67,7 +46,6 @@
         <option value="coffee">Upsize Coffee</option>
       </select>
 
-      <button class="button" type="submit" name="product" value="coffee">SET</button>
     </form>
 
   </body>

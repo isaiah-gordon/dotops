@@ -33,7 +33,7 @@ def login():
         if request.form['username'] != '40469' or request.form['password'] != 'password':
             error = 'Invalid Credentials. Please try again.'
         else:
-            token = jwt.encode({'user': request.form['username'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)}, app.config['SECRET_KEY'])
+            token = jwt.encode({'user': request.form['username'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=50)}, app.config['SECRET_KEY'])
 
             session['token'] = token
             return redirect(url_for('control'))
@@ -43,11 +43,15 @@ def login():
 @app.route('/control', methods=['GET', 'POST'])
 @auth_required
 def control():
-    options = [{'name':'fry'},{'name':'pie'}]
+
     if request.method == 'POST':
-        pass
+        projectpath = request.form['products']
+        print(projectpath)
+
+        return render_template('control.html')
 
     return render_template('control.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
