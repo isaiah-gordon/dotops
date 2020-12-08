@@ -25,8 +25,26 @@
     </style>
 
     <script type=text/javascript>
+      function timer() {
+        var select_container = document.getElementById("select_container");
+        var child_options = select_container.getElementsByTagName("option");
+
+        var product = '{{ product }}';
+        document.getElementById('header').innerHTML = product;
+
+        for(var i=0; i<child_options.length; i++){
+          if (child_options[i].value == product) {
+            child_options[i].selected = true
+          }
+        }
+
+        setTimeout(function(){ new_timer; }, 10000);
+
+      }
 
     </script>
+
+    <body onload="timer()">
 
   </head>
   <body>
@@ -35,8 +53,10 @@
       <li><img class="logo" src="static/images/logo.png"></li>
     </div>
 
-    <form action="{{ url_for('control') }}" method="post">
-      <select class="button" name="products" onchange='this.form.submit();'>
+    <p id="header" style="color:white;">Hello world!</p>
+
+    <form action="{{ url_for('website.control') }}" method="post">
+      <select id="select_container" class="button" name="products" onchange='this.form.submit();'>
         <option value="donut">Donuts</option>
         <option value="muffin">Muffins</option>
         <option value="pie">Apple Pie</option>

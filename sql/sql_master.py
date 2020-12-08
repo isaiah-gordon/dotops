@@ -1,21 +1,21 @@
 import mysql.connector
 from mysql.connector.constants import ClientFlag
-import secrets
+from sql import secrets
 
 config = {
     'user': secrets.user,
     'password': secrets.password,
     'host': secrets.host,
     'client_flags': [ClientFlag.SSL],
-    'ssl_ca': 'ssl/server-ca.pem',
-    'ssl_cert': 'ssl/client-cert.pem',
-    'ssl_key': 'ssl/client-key.pem',
+    'ssl_ca': 'sql/ssl/server-ca.pem',
+    'ssl_cert': 'sql/ssl/client-cert.pem',
+    'ssl_key': 'sql/ssl/client-key.pem',
     'database': 'database1'
 }
 
-dotops_DB = mysql.connector.connect(**config)
+dotops_database = mysql.connector.connect(**config)
 
-cursor = dotops_DB.cursor()
+cursor = dotops_database.cursor()
 
 
 def read_next_product():
@@ -31,5 +31,5 @@ def update_next_product(name):
 
     cursor.execute(sql)
 
-    dotops_DB.commit()
+    dotops_database.commit()
 
