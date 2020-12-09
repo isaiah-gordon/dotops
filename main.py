@@ -5,7 +5,6 @@ from api.routes import api
 
 import secrets
 
-
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = secrets.secret_key

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, current_app, make_response, jsonify
+from flask import Blueprint, request, current_app, make_response, jsonify
 import jwt
 from functools import wraps
 import datetime
