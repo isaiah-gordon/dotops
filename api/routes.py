@@ -4,6 +4,8 @@ from functools import wraps
 import datetime
 from sql import sql_master as database
 
+import secrets
+
 api = Blueprint('api', __name__, url_prefix='/api')
 
 def token_required(f):
@@ -36,12 +38,15 @@ def index():
 def generate_token():
     auth = request.authorization
 
-    if auth and auth.username != 'isaiah.developer' or auth.password != 'F33dD0g$':
+    if auth and auth.username != secrets.api_user or auth.password != secrets.api_password:
         return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required'})
-    else:
-        token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)}, current_app.config['SECRET_KEY'])
+
+    elif auth and auth.username == secrets.api_user and auth.password == secrets.api_password:
+        token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=3)}, current_app.config['SECRET_KEY'])
 
         return token
+
+    return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required'})
 
 @api.route('/next_product', methods=['GET', 'POST'])
 @token_required

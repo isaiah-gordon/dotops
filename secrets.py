@@ -1,0 +1,5 @@
+secret_key = 'G4zbymF@4$5E9Kyk8uZZS_#_hK=LAR'
+website_user = '40469'
+website_password = '$Winter2020'
+api_user = 'isaiah.developer'
+api_password = 'F33dD0g$'

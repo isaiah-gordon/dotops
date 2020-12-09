@@ -55,9 +55,16 @@ body {
 
     font-size: 20px;
     padding-left: 5%;
-    background-color: grey;
-    color: white;
+    background-color: #bababa;
     border: 0px;
+    color: black;
+}
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    font-family: 'Josefin Sans';
+    color: #7a7a7a;
+    font-size: 18px;
+    opacity: 1; /* Firefox */
 }
 
 p {
@@ -65,12 +72,6 @@ p {
     color: white;
     text-align: center;
     font-family: 'Josefin Sans';
-}
-
-::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-    font-family: 'Josefin Sans';
-    color: #b6b6b6;
-    opacity: 1; /* Firefox */
 }
 
 .error {
