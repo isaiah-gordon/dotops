@@ -1,9 +1,9 @@
-  body {
+body {
     margin:0;
     background-color: black;
-  }
+}
 
-  .topnav {
+.topnav {
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -11,9 +11,9 @@
     position: sticky;
     top: 0;
     width: 100%;
-  }
+}
 
-  .button {
+.button {
     margin-top: 7%;
     margin-left: 35%;
     width: 30%;
@@ -24,13 +24,30 @@
     font-weight: bold;
     font-size: 20px;
     font-family: 'Josefin Sans';
-  }
+}
 
-  .button:hover {
+.button:hover {
     background-color: #edbd2aff;
-  }
+}
 
-  .input {
+.select_menu {
+    margin-left: 35%;
+    width: 30%;
+    height: 70px;
+    background-color: white;
+    border: 0px;
+
+    font-weight: bold;
+    font-size: 30px;
+    text-align: center;
+    font-family: 'Josefin Sans';
+}
+
+.select_menu::-ms-expand {
+  background-color: yellow;
+}
+
+.input {
     width: 94%;
     margin-top: 5%;
     height: 10vh;
@@ -41,7 +58,14 @@
     background-color: grey;
     color: white;
     border: 0px;
-  }
+}
+
+p {
+    font-size: 300%;
+    color: white;
+    text-align: center;
+    font-family: 'Josefin Sans';
+}
 
 ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
     font-family: 'Josefin Sans';

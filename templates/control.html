@@ -8,14 +8,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet">
 
-    <link href="static/styles/app.css" rel="stylesheet">
+    <link href="static/styles/app.css " rel="stylesheet">
 
     <style>
-      body {
-        margin:0;
-        background-color: black;
-      }
-
       .logo {
         width: 20%;
         padding: 40px;
@@ -24,13 +19,14 @@
       }
     </style>
 
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
     <script type=text/javascript>
-      function timer() {
+      function data_load() {
         var select_container = document.getElementById("select_container");
         var child_options = select_container.getElementsByTagName("option");
 
         var product = '{{ product }}';
-        document.getElementById('header').innerHTML = product;
 
         for(var i=0; i<child_options.length; i++){
           if (child_options[i].value == product) {
@@ -38,13 +34,15 @@
           }
         }
 
-        setTimeout(function(){ new_timer; }, 10000);
+        setInterval(function(){ location.reload(); }, 30000);
 
       }
 
+
     </script>
 
-    <body onload="timer()">
+    <body onload="data_load()">
+
 
   </head>
   <body>
@@ -53,10 +51,10 @@
       <li><img class="logo" src="static/images/logo.png"></li>
     </div>
 
-    <p id="header" style="color:white;">Hello world!</p>
+    <p id="header">Next Product:</p>
 
     <form action="{{ url_for('website.control') }}" method="post">
-      <select id="select_container" class="button" name="products" onchange='this.form.submit();'>
+      <select id="select_container" class="select_menu" name="products" onchange='this.form.submit();'>
         <option value="donut">Donuts</option>
         <option value="muffin">Muffins</option>
         <option value="pie">Apple Pie</option>
@@ -65,7 +63,6 @@
         <option value="hashbrown">Hash Browns</option>
         <option value="coffee">Upsize Coffee</option>
       </select>
-
     </form>
 
   </body>

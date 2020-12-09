@@ -15,12 +15,12 @@ def auth_required(f):
         try:
             token = session['token']
         except:
-            return ('No authentication!')
+            return redirect(url_for('website.login'))
 
         try:
             jwt.decode(token, current_app.config['SECRET_KEY'])
         except:
-            return ('Invalid authentication!')
+            return redirect(url_for('website.login'))
 
         return f(*args, **kwargs)
 
@@ -32,10 +32,10 @@ def auth_required(f):
 def login():
     error = None
     if request.method == 'POST':
-        if request.form['username'] != '40469' or request.form['password'] != 'password':
+        if request.form['username'] != '40469' or request.form['password'] != '$Winter2020':
             error = 'Invalid Credentials. Please try again.'
         else:
-            token = jwt.encode({'user': request.form['username'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=50)}, current_app.config['SECRET_KEY'])
+            token = jwt.encode({'user': request.form['username'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=14)}, current_app.config['SECRET_KEY'])
 
             session['token'] = token
             return redirect(url_for('website.control'))
@@ -55,3 +55,4 @@ def control():
         print(database.read_next_product())
 
     return render_template('control.html', product=database.read_next_product())
+
