@@ -54,7 +54,4 @@ def control():
 
         database.update_next_product(product)
 
-        print(database.read_next_product())
-
     return render_template('control.html', product=database.read_next_product())
-
