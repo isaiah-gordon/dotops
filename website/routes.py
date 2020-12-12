@@ -37,7 +37,7 @@ def login():
         if request.form['username'] != secrets.website_user or request.form['password'] != secrets.website_password:
             error = 'Invalid Credentials. Please try again.'
         else:
-            token = jwt.encode({'user': request.form['username'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=3)}, current_app.config['SECRET_KEY'])
+            token = jwt.encode({'user': request.form['username'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=8)}, current_app.config['SECRET_KEY'])
 
             session['token'] = token
             return redirect(url_for('website.activate'))
