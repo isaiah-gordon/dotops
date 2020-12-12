@@ -49,17 +49,31 @@ def login():
 @auth_required
 def activate():
 
-    if request.method == 'POST':
-        product = request.form['products']
-        duration = request.form['duration']
-        name1 = request.form['lane1_name']
-        name2 = request.form['lane2_name']
-        name3= request.form['counter_name']
+    if database.game_status() == 1:
+        return redirect(url_for('website.active'))
 
-        print(product)
-        print(duration)
-        print(name1)
-        print(name2)
-        print(name3)
+    if request.method == 'POST':
+
+        form_dict = request.form.to_dict()
+        form_dict['status'] = 1
+
+        database.update(form_dict)
+
+        return redirect(url_for('website.active'))
 
     return render_template('activate.html')
+
+
+@website.route('/active', methods=['GET', 'POST'])
+@auth_required
+def active():
+
+    if database.game_status() == 0:
+        return redirect(url_for('website.activate'))
+
+    if request.method == 'POST':
+
+        database.update({'status': 0})
+        return redirect(url_for('website.activate'))
+
+    return render_template('active.html')

@@ -18,6 +18,14 @@ dotops_database = mysql.connector.connect(**config)
 cursor = dotops_database.cursor()
 
 
+def game_status():
+    cursor.execute("SELECT status FROM active_game")
+
+    result = cursor.fetchall()
+
+    return result[0][0]
+
+
 def read():
     cursor.execute("SELECT * FROM active_game")
 

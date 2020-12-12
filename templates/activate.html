@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>Activate</title>
+    <title>Start a game!</title>
     <link rel="shortcut icon" type="image/png" href="static/images/icon.png">
 
     <!-- Import some nice fonts from Google -->
@@ -30,7 +30,7 @@
 
     <form class="center" action="{{ url_for('website.activate') }}" method="post">
       <p>Product:</p>
-      <select id="product_select" class="select_menu" name="products" required>
+      <select id="product_select" class="select_menu" name="product" required>
         <option disabled selected value> -- select a product -- </option>
         <option value="donut">Donuts</option>
         <option value="muffin">Muffins</option>
@@ -43,16 +43,16 @@
 
       <p>Duration:</p>
       <select id="duration_select" class="select_menu" name="duration" required>
-        <option value="1">1 hour</option>
-        <option value="2" selected>2 hours</option>
-        <option value="3">3 hours</option>
-        <option value="4">4 hours</option>
+        <option value='1'>1 hour</option>
+        <option value='2' selected>2 hours</option>
+        <option value='3'>3 hours</option>
+        <option value='4'>4 hours</option>
       </select>
 
       <p>Crew names:</p>
-      <input placeholder="LANE 1" maxlength="9" style="margin-bottom: 8px;" class="input" type="text" name="lane1_name" value="">
-      <input placeholder="LANE 2" maxlength="9" style="margin-bottom: 8px;" class="input" type="text" name="lane2_name" value="">
-      <input placeholder="COUNTER" maxlength="9" class="input" type="text" name="counter_name" value="">
+      <input placeholder="LANE 1" maxlength="9" style="margin-bottom: 8px;" class="input" type="text" name="name1" value="">
+      <input placeholder="LANE 2" maxlength="9" style="margin-bottom: 8px;" class="input" type="text" name="name2" value="">
+      <input placeholder="COUNTER" maxlength="9" class="input" type="text" name="name3" value="">
 
       <input class="button" type="submit" value="START!">
     </form>

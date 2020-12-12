@@ -23,11 +23,18 @@ p {
     background-color: black;
 }
 
+.logo {
+  width: 20%;
+  padding: 40px;
+  padding-left: 40%;
+  padding-right: 40%;
+}
+
 .center {
   background: black;
   margin: auto;
   margin-top: 100px;
-  width: 42vh;
+  width: 48vh;
   max-width: 70%;
 }
 
