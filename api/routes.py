@@ -8,6 +8,7 @@ import secrets
 
 api = Blueprint('api', __name__, url_prefix='/api')
 
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -48,15 +49,21 @@ def generate_token():
 
     return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required'})
 
-@api.route('/next_product', methods=['GET', 'POST'])
+
+@api.route('/active_game', methods=['GET', 'POST'])
 @token_required
-def next_product():
-    json_post = jsonify({'next_product': database.read_next_product()})
+def active_game():
+    json_post = jsonify({'status': database.read()[0],
+                         'product': database.read()[1],
+                         'duration': database.read()[2],
+                         'name1': database.read()[3],
+                         'name2': database.read()[4],
+                         'name3': database.read()[5],
+                         })
 
     if request.method == 'POST':
         json_post = request.get_json()
 
-        database.update_next_product(json_post['next_product'])
+        database.update(json_post)
 
     return json_post
-

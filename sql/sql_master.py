@@ -18,18 +18,18 @@ dotops_database = mysql.connector.connect(**config)
 cursor = dotops_database.cursor()
 
 
-def read_next_product():
-    cursor.execute("SELECT * FROM next_product")
+def read():
+    cursor.execute("SELECT * FROM active_game")
 
-    myresult = cursor.fetchall()
+    result = cursor.fetchall()
 
-    return myresult[0][0]
+    return result[0]
 
 
-def update_next_product(name):
-    sql = "UPDATE next_product SET name = '%s'" % name
+def update(dict):
 
-    cursor.execute(sql)
+    for key in dict:
+        sql = "UPDATE active_game SET %s = '%s'" % (key, dict[key])
+        cursor.execute(sql)
 
     dotops_database.commit()
-

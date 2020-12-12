@@ -12,19 +12,14 @@
     <link href="static/styles/app.css" rel="stylesheet">
 
     <style>
-      body {
-        background-color: black;
-        font-family: 'Arial';
-        color: white;
-      }
 
-      .center {
-        background: black;
-        margin: auto;
-        margin-top: 100px;
-        width: 50vh;
-        max-width: 70%;
-      }
+    .login-center {
+      background: black;
+      margin: auto;
+      margin-top: 100px;
+      width: 50vh;
+      max-width: 70%;
+    }
 
       .logo {
         width: 80%;
@@ -37,12 +32,12 @@
 
   </head>
   <body>
-    <div class="center">
+    <div class="login-center">
       <img class="logo" src="static/images/logo.png">
 
       <form action="" method="post">
         <input class="input" placeholder="STORE NUMBER" type="text" name="username" value="{{ request.form.username }}">
-        <input class="input" placeholder="PASSWORD" type="password" name="password" value="{{ request.form.password }}">
+        <input class="input" style="margin-top: 5%;" placeholder="PASSWORD" type="password" name="password" value="{{ request.form.password }}">
         <input class="button" type="submit" value="Login">
       </form>
 

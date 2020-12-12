@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Activate</title>
+    <link rel="shortcut icon" type="image/png" href="static/images/icon.png">
+
+    <!-- Import some nice fonts from Google -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet">
+
+    <link href="static/styles/app.css " rel="stylesheet">
+
+    <style>
+      .logo {
+        width: 20%;
+        padding: 40px;
+        padding-left: 40%;
+        padding-right: 40%;
+      }
+    </style>
+
+
+  </head>
+  <body>
+
+    <div class='topnav'>
+      <img class="logo" src="static/images/logo.png">
+    </div>
+
+    <form class="center" action="{{ url_for('website.activate') }}" method="post">
+      <p>Product:</p>
+      <select id="product_select" class="select_menu" name="products" required>
+        <option disabled selected value> -- select a product -- </option>
+        <option value="donut">Donuts</option>
+        <option value="muffin">Muffins</option>
+        <option value="pie">Apple Pie</option>
+        <option value="cookie">Cookies</option>
+        <option value="fry">Large Fries</option>
+        <option value="hashbrown">Hash Browns</option>
+        <option value="coffee">Upsize Coffee</option>
+      </select>
+
+      <p>Duration:</p>
+      <select id="duration_select" class="select_menu" name="duration" required>
+        <option value="1">1 hour</option>
+        <option value="2" selected>2 hours</option>
+        <option value="3">3 hours</option>
+        <option value="4">4 hours</option>
+      </select>
+
+      <p>Crew names:</p>
+      <input placeholder="LANE 1" maxlength="9" style="margin-bottom: 8px;" class="input" type="text" name="lane1_name" value="">
+      <input placeholder="LANE 2" maxlength="9" style="margin-bottom: 8px;" class="input" type="text" name="lane2_name" value="">
+      <input placeholder="COUNTER" maxlength="9" class="input" type="text" name="counter_name" value="">
+
+      <input class="button" type="submit" value="START!">
+    </form>
+
+  </body>
+</html>

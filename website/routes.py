@@ -40,18 +40,26 @@ def login():
             token = jwt.encode({'user': request.form['username'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=3)}, current_app.config['SECRET_KEY'])
 
             session['token'] = token
-            return redirect(url_for('website.control'))
+            return redirect(url_for('website.activate'))
 
     return render_template('login.html', error=error)
 
 
-@website.route('/control', methods=['GET', 'POST'])
+@website.route('/activate', methods=['GET', 'POST'])
 @auth_required
-def control():
+def activate():
 
     if request.method == 'POST':
         product = request.form['products']
+        duration = request.form['duration']
+        name1 = request.form['lane1_name']
+        name2 = request.form['lane2_name']
+        name3= request.form['counter_name']
 
-        database.update_next_product(product)
+        print(product)
+        print(duration)
+        print(name1)
+        print(name2)
+        print(name3)
 
-    return render_template('control.html', product=database.read_next_product())
+    return render_template('activate.html')
