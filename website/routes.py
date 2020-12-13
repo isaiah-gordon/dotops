@@ -56,7 +56,6 @@ def activate():
     if request.method == 'POST':
 
         form_dict = request.form.to_dict()
-        print(form_dict)
         form_dict['status'] = 1
 
         database.update(form_dict)
