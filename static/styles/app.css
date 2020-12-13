@@ -7,7 +7,7 @@ body {
 }
 
 p {
-    font-size: 50px;
+    font-size: 45px;
     color: white;
     text-align: left;
     font-family: 'Josefin Sans';
@@ -34,7 +34,7 @@ p {
   background: black;
   margin: auto;
   margin-top: 100px;
-  width: 48vh;
+  width: 50vh;
   max-width: 70%;
 }
 

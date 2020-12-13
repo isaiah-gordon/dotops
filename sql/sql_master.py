@@ -13,7 +13,6 @@ config = {
     'database': 'database1'
 }
 
-
 dotops_database = mysql.connector.connect(**config)
 
 cursor = dotops_database.cursor()
@@ -35,10 +34,10 @@ def read():
     return result[0]
 
 
-def update(dict):
+def update(post_dict):
 
-    for key in dict:
-        sql = "UPDATE active_game SET %s = '%s'" % (key, dict[key])
+    for key in post_dict:
+        sql = "UPDATE active_game SET %s = '%s'" % (key, post_dict[key])
         cursor.execute(sql)
 
     dotops_database.commit()

@@ -20,7 +20,7 @@
       <img class="logo" src="static/images/logo.png">
     </div>
 
-    <form id="form" class="center" onsubmit="return (confirm('Hey!\nProgress will be lost for the active game. Are you sure you want to CANCEL the active game?') && spinner())" action="{{ url_for('website.active') }}" method="post">
+    <form id="form" class="center" onsubmit="return (confirm('Hey!\nProgress will be lost for the active game. Are you sure you want to CANCEL the active game?') && spinner() && spinner())" action="{{ url_for('website.active') }}" method="post">
       <p>Game in progress...</p>
       <input class="button" style="background-color: #b30000; width: 100%; margin-left: 0; height: 12vh;" type="submit" value="CANCEL">
     </form>
