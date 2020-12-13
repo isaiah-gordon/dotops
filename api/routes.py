@@ -39,15 +39,15 @@ def index():
 def generate_token():
     auth = request.authorization
 
-    if auth and auth.username != secrets.api_user or auth.password != secrets.api_password:
+    if auth and (auth.username != secrets.api_user or auth.password != secrets.api_password):
         return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required'})
 
-    elif auth and auth.username == secrets.api_user and auth.password == secrets.api_password:
+    elif auth and (auth.username == secrets.api_user and auth.password == secrets.api_password):
         token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=3)}, current_app.config['SECRET_KEY'])
 
         return token
 
-    return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required'})
+    return make_response('Authorization is required!', 401, {'WWW-Authenticate': 'Basic realm="Login Required'})
 
 
 @api.route('/active_game', methods=['GET', 'POST'])
