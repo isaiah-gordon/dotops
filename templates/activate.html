@@ -20,6 +20,7 @@
       }
     </style>
 
+    <script src="static/scripts/app.js"></script>
 
   </head>
   <body>
@@ -28,7 +29,7 @@
       <img class="logo" src="static/images/logo.png">
     </div>
 
-    <form class="center" action="{{ url_for('website.activate') }}" method="post">
+    <form id="form" class="center" onsubmit="return spinner()" action="{{ url_for('website.activate') }}" method="post">
       <p>Product:</p>
       <select id="product_select" class="select_menu" name="product" required>
         <option disabled selected value> -- select a product -- </option>

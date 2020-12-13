@@ -3,6 +3,7 @@ import jwt
 from functools import wraps
 import datetime
 from sql import sql_master as database
+import time
 
 import secrets
 
@@ -59,6 +60,8 @@ def activate():
 
         database.update(form_dict)
 
+        time.sleep(6)
+
         return redirect(url_for('website.active'))
 
     return render_template('activate.html')
@@ -74,6 +77,9 @@ def active():
     if request.method == 'POST':
 
         database.update({'status': 0})
+
+        time.sleep(6)
+
         return redirect(url_for('website.activate'))
 
     return render_template('active.html')

@@ -13,6 +13,7 @@ config = {
     'database': 'database1'
 }
 
+
 dotops_database = mysql.connector.connect(**config)
 
 cursor = dotops_database.cursor()
