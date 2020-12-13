@@ -1,5 +1,5 @@
 function spinner(){
     setTimeout(function() {
-      document.getElementById('form').innerHTML = '<img class="logo" src="static/images/spinner.gif">'
-    }, 800);
+      window.location.replace("/active");
+    }, 8000);
 }

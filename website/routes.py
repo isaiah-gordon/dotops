@@ -56,13 +56,12 @@ def activate():
     if request.method == 'POST':
 
         form_dict = request.form.to_dict()
+        print(form_dict)
         form_dict['status'] = 1
 
         database.update(form_dict)
 
-        time.sleep(6)
-
-        return redirect(url_for('website.active'))
+        return render_template('spinner.html')
 
     return render_template('activate.html')
 
@@ -78,8 +77,6 @@ def active():
 
         database.update({'status': 0})
 
-        time.sleep(6)
-
-        return redirect(url_for('website.activate'))
+        return render_template('spinner.html')
 
     return render_template('active.html')
