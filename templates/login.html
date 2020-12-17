@@ -32,12 +32,12 @@
 
   </head>
   <body>
-    <div class="login-center">
+    <div class="login-center" action="{{ url_for('website.login') }}">
       <img class="login-logo" src="static/images/logo.png">
 
       <form action="" method="post">
-        <input class="input" placeholder="STORE NUMBER" type="text" name="username" value="{{ request.form.username }}">
-        <input class="input" style="margin-top: 5%;" placeholder="PASSWORD" type="password" name="password" value="{{ request.form.password }}">
+        <input class="input" placeholder="STORE NUMBER" type="text" name="username" value="">
+        <input class="input" style="margin-top: 5%;" placeholder="PASSWORD" type="password" name="password" value="">
         <input class="button" type="submit" value="Login">
       </form>
 

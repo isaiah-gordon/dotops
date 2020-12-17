@@ -59,6 +59,7 @@ def active_game():
                          'name1': database.read()[3],
                          'name2': database.read()[4],
                          'name3': database.read()[5],
+                         'manager_id': database.read()[6]
                          })
 
     if request.method == 'POST':

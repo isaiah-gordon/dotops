@@ -30,6 +30,8 @@
     </div>
 
     <form id="form" class="center" action="{{ url_for('website.activate') }}" method="post">
+      <input placeholder="MANAGER ID" maxlength="4" style="margin-bottom: 8px;" class="input" type="text" pattern="\d*" name="manager_id" value="" required>
+
       <p>Product:</p>
       <select id="product_select" class="select_menu" name="product" required>
         <option disabled selected value> -- select a product -- </option>

@@ -13,6 +13,17 @@ config = {
     'database': 'database1'
 }
 
+# config = {
+#     'user': secrets.user,
+#     'password': secrets.password,
+#     'host': secrets.host,
+#     'client_flags': [ClientFlag.SSL],
+#     'ssl_ca': 'ssl/server-ca.pem',
+#     'ssl_cert': 'ssl/client-cert.pem',
+#     'ssl_key': 'ssl/client-key.pem',
+#     'database': 'database1'
+# }
+
 dotops_database = mysql.connector.connect(**config)
 
 cursor = dotops_database.cursor()
@@ -41,3 +52,10 @@ def update(post_dict):
         cursor.execute(sql)
 
     dotops_database.commit()
+
+# cursor.execute("SELECT * FROM active_game")
+#
+# myresult = cursor.fetchall()
+#
+# for x in myresult:
+#   print(x)
