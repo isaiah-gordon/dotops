@@ -1,28 +1,17 @@
 import mysql.connector
 from mysql.connector.constants import ClientFlag
-from sql import secrets
+import os
 
 config = {
-    'user': secrets.user,
-    'password': secrets.password,
-    'host': secrets.host,
+    'user': os.environ.get("database_user"),
+    'password': os.environ.get("database_password"),
+    'host': os.environ.get("database_host"),
     'client_flags': [ClientFlag.SSL],
     'ssl_ca': 'sql/ssl/server-ca.pem',
     'ssl_cert': 'sql/ssl/client-cert.pem',
     'ssl_key': 'sql/ssl/client-key.pem',
     'database': 'database1'
 }
-
-# config = {
-#     'user': secrets.user,
-#     'password': secrets.password,
-#     'host': secrets.host,
-#     'client_flags': [ClientFlag.SSL],
-#     'ssl_ca': 'ssl/server-ca.pem',
-#     'ssl_cert': 'ssl/client-cert.pem',
-#     'ssl_key': 'ssl/client-key.pem',
-#     'database': 'database1'
-# }
 
 dotops_database = mysql.connector.connect(**config)
 
