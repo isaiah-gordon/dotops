@@ -35,27 +35,30 @@ def auth_required(f):
         authorized_users = ['isaiah.jk.gordon@gmail.com']
 
         user = dict(session).get('email', None)
-        print(dict(session))
         # You would add a check here and use the user id or something to fetch
         # the other data for that user/check if they exist
         if user in authorized_users:
             return f(*args, **kwargs)
 
         elif user is None:
-            return 'You have not logged in!'
+            return 'Access denied: Login required!'
 
         elif user not in authorized_users:
-            return 'You are not allowed here!'
+            email = dict(session).get('email', None)
+            return f'Access denied: Your account \" {email} \" is not authorized!'
 
 
     return decorated
 
 
 @website.route('/')
-@auth_required
-def hello_world():
-    first_name = dict(session).get('first_name', None)
-    return f'Hello, {first_name}!'
+def index():
+    return render_template('index.html')
+
+
+@website.route('/info')
+def info():
+    return render_template('info.html')
 
 
 @website.route('/login')
@@ -74,7 +77,50 @@ def authorize():
     # do something with the token and profile
     session['email'] = user_info['email']
     session['first_name'] = user_info['given_name']
-    return redirect('/')
+    return redirect('/home')
+
+
+@website.route('/home')
+@auth_required
+def home():
+    return render_template('home.html')
+    # first_name = dict(session).get('first_name', None)
+    # return f'Hello, {first_name}!'
+
+
+@website.route('/activate', methods=['GET', 'POST'])
+@auth_required
+def activate():
+
+    if database.game_status() == 1:
+        return redirect(url_for('website.active'))
+
+    if request.method == 'POST':
+
+        form_dict = request.form.to_dict()
+        form_dict['status'] = 1
+
+        database.update(form_dict)
+
+        return render_template('spinner.html')
+
+    return render_template('activate.html')
+
+
+@website.route('/active', methods=['GET', 'POST'])
+@auth_required
+def active():
+
+    if database.game_status() == 0:
+        return redirect(url_for('website.home'))
+
+    if request.method == 'POST':
+
+        database.update({'status': 0})
+
+        return render_template('spinner.html')
+
+    return render_template('active.html')
 
 
 @website.route('/logout')
@@ -84,21 +130,9 @@ def logout():
     return redirect('/')
 
 
-# Data from Google
-
-# {'id': '117584971817811111524',
-# 'email': 'zayahgordon@gmail.com',
-# 'verified_email': True,
-# 'name': 'Zayah Gordon',
-# 'given_name': 'Zayah',
-# 'family_name': 'Gordon',
-# 'picture': 'https://lh6.googleusercontent.com/-xi6_vTTIOUc/AAAAAAAAAAI/AAAAAAAAAAA/AMZuucmbI3jsfvWzCGbb4OuWpxJdD71riw/s96-c/photo.jpg', 'locale': 'en'}
-# {'_google_authlib_nonce_': 'OJyBLC4nMMRmrZOjJgws',
-# 'email': 'zayahgordon@gmail.com'}
-
 # ----- EXCLUDE -----
 
-# # Route for handling the login page logic
+# Route for handling the login page logic
 # @website.route('/', methods=['GET', 'POST'])
 # def login():
 #     error = None
@@ -112,38 +146,3 @@ def logout():
 #             return redirect(url_for('website.activate'))
 #
 #     return render_template('login.html', error=error)
-#
-#
-# @website.route('/activate', methods=['GET', 'POST'])
-# @auth_required
-# def activate():
-#
-#     if database.game_status() == 1:
-#         return redirect(url_for('website.active'))
-#
-#     if request.method == 'POST':
-#
-#         form_dict = request.form.to_dict()
-#         form_dict['status'] = 1
-#
-#         database.update(form_dict)
-#
-#         return render_template('spinner.html')
-#
-#     return render_template('activate.html')
-#
-#
-# @website.route('/active', methods=['GET', 'POST'])
-# @auth_required
-# def active():
-#
-#     if database.game_status() == 0:
-#         return redirect(url_for('website.activate'))
-#
-#     if request.method == 'POST':
-#
-#         database.update({'status': 0})
-#
-#         return render_template('spinner.html')
-#
-#     return render_template('active.html')

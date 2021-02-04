@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Login</title>
+  <link rel="shortcut icon" type="image/png" href="static/images/icon.png">
+
+  <!-- Import some nice fonts from Google -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
+
+  <link href="static/styles/app.css" rel="stylesheet">
+
+  <style>
+
+  .login-center {
+    background: #101010;
+    margin: auto;
+    margin-top: 0px;
+    width: 50vh;
+    max-width: 80%;
+    text-align: center;
+  }
+
+  .login-logo {
+    width: 80%;
+    margin-bottom: 30px;
+    margin-right: 10%;
+    margin-left: 10%;
+  }
+
+  </style>
+
+</head>
+<body>
+
+  <div class='topnav'>
+    <img class="logo" src="static/images/logo.png">
+  </div>
+
+  <div class="login-center">
+
+    <div class="button" style="width: 100%; height: 11vh;" onclick="location.href = '{{ url_for('website.info') }}';"><p>LEARN MORE</p></div>
+
+    <div class="google_button" onclick="location.href = '{{ url_for('website.login') }}';"></div>
+
+
+  </div>
+
+</body>
+</html>
