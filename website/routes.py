@@ -1,10 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session, current_app
-import jwt
 from functools import wraps
-import datetime
 from sql import sql_master as database
 import os
-import secrets
 
 from authlib.integrations.flask_client import OAuth
 
@@ -41,7 +38,7 @@ def auth_required(f):
             return f(*args, **kwargs)
 
         elif user is None:
-            return 'Access denied: Login required!'
+            return redirect(url_for('website.welcome'))
 
         elif user not in authorized_users:
             email = dict(session).get('email', None)
@@ -52,7 +49,12 @@ def auth_required(f):
 
 
 @website.route('/')
+@auth_required
 def index():
+    return render_template('home.html')
+
+@website.route('/welcome')
+def welcome():
     return render_template('index.html')
 
 
@@ -77,15 +79,7 @@ def authorize():
     # do something with the token and profile
     session['email'] = user_info['email']
     session['first_name'] = user_info['given_name']
-    return redirect('/home')
-
-
-@website.route('/home')
-@auth_required
-def home():
-    return render_template('home.html')
-    # first_name = dict(session).get('first_name', None)
-    # return f'Hello, {first_name}!'
+    return redirect('/')
 
 
 @website.route('/activate', methods=['GET', 'POST'])
@@ -128,21 +122,3 @@ def logout():
     for key in list(session.keys()):
         session.pop(key)
     return redirect('/')
-
-
-# ----- EXCLUDE -----
-
-# Route for handling the login page logic
-# @website.route('/', methods=['GET', 'POST'])
-# def login():
-#     error = None
-#     if request.method == 'POST':
-#         if request.form['username'] != secrets.website_user or request.form['password'] != secrets.website_password:
-#             error = 'Invalid Credentials. Please try again.'
-#         else:
-#             token = jwt.encode({'user': request.form['username'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=8)}, current_app.config['SECRET_KEY'])
-#
-#             session['token'] = token
-#             return redirect(url_for('website.activate'))
-#
-#     return render_template('login.html', error=error)

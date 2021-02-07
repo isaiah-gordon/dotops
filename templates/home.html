@@ -18,7 +18,7 @@
       <img class="logo" src="static/images/logo.png">
     </div>
 
-    <p>Hello, Isaiah!</p>
+    <p>Hello, {{ dict(session).get('first_name', None) }}!</p>
 
     <div class="center">
       <div class="button" style="width: 100%; max-height: 200px; height: 20vh; background-image: url('static/images/button_background.png'); background-size: 120%; background-position: center;" type="button" name="button" onclick="location.href = '{{ url_for('website.activate') }}';"><p>FLOOR BOARD</p></div>
