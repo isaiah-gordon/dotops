@@ -3,6 +3,10 @@ from . import main
 from functools import wraps
 from app.sql import sql_master as database
 import os
+from flask import session
+
+from flask_socketio import emit, send
+from .. import socketio
 
 from authlib.integrations.flask_client import OAuth
 
@@ -56,6 +60,7 @@ def welcome():
 
 @main.route('/info')
 def info():
+    socketio.send('Hello friend!')
     return render_template('info.html')
 
 

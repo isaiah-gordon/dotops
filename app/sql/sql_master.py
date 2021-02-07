@@ -7,9 +7,9 @@ config = {
     'password': os.environ.get("database_password"),
     'host': os.environ.get("database_host"),
     'client_flags': [ClientFlag.SSL],
-    'ssl_ca': 'sql/ssl/server-ca.pem',
-    'ssl_cert': 'sql/ssl/client-cert.pem',
-    'ssl_key': 'sql/ssl/client-key.pem',
+    'ssl_ca': 'app/sql/ssl/server-ca.pem',
+    'ssl_cert': 'app/sql/ssl/client-cert.pem',
+    'ssl_key': 'app/sql/ssl/client-key.pem',
     'database': 'database1'
 }
 
