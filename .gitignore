@@ -1,5 +1,5 @@
-/sql/ssl
-/sql/secrets.py
+/app/sql/ssl
+/app/sql/secrets.py
 /secrets.py
 /venv
 app.yaml

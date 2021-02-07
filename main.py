@@ -1,16 +1,6 @@
-from flask import Flask
+from app import create_app, socketio
 
-from website.routes import website
-from api.routes import api
-
-import os
-
-app = Flask(__name__)
-
-app.config['SECRET_KEY'] = os.environ.get("secret_key")
-
-app.register_blueprint(website)
-app.register_blueprint(api)
+app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=os.environ.get("debug_mode"))
+    socketio.run(app)

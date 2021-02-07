@@ -1,12 +1,11 @@
-from flask import Blueprint, request, current_app, make_response, jsonify
+from flask import request, current_app, make_response, jsonify
+from . import train
 import jwt
 from functools import wraps
 import datetime
-from sql import sql_master as database
+from app.sql import sql_master as database
 
 import secrets
-
-api = Blueprint('api', __name__, url_prefix='/api')
 
 
 def token_required(f):
@@ -29,13 +28,13 @@ def token_required(f):
     return decorated
 
 
-@api.route('/')
+@train.route('/')
 def index():
     return 'Welcome to the Dotops API!'
 
 
 # Route for handling the login page logic
-@api.route('/generate_token')
+@train.route('/generate_token')
 def generate_token():
     auth = request.authorization
 
@@ -50,7 +49,7 @@ def generate_token():
     return make_response('Authorization is required!', 401, {'WWW-Authenticate': 'Basic realm="Login Required'})
 
 
-@api.route('/active_game', methods=['GET', 'POST'])
+@train.route('/active_game', methods=['GET', 'POST'])
 @token_required
 def active_game():
     json_post = jsonify({'status': database.read()[0],

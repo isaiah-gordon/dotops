@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, redirect, url_for, request, session, current_app
+from flask import render_template, redirect, url_for, request, session, current_app
+from . import main
 from functools import wraps
-from sql import sql_master as database
+from app.sql import sql_master as database
 import os
 
 from authlib.integrations.flask_client import OAuth
@@ -21,10 +22,6 @@ oauth.register(
 )
 
 
-website = Blueprint('website', __name__)
-
-
-
 def auth_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -38,39 +35,38 @@ def auth_required(f):
             return f(*args, **kwargs)
 
         elif user is None:
-            return redirect(url_for('website.welcome'))
+            return redirect(url_for('main.welcome'))
 
         elif user not in authorized_users:
             email = dict(session).get('email', None)
             return f'Access denied: Your account \" {email} \" is not authorized!'
 
-
     return decorated
 
 
-@website.route('/')
+@main.route('/')
 @auth_required
 def index():
     return render_template('home.html')
 
-@website.route('/welcome')
+@main.route('/welcome')
 def welcome():
     return render_template('index.html')
 
 
-@website.route('/info')
+@main.route('/info')
 def info():
     return render_template('info.html')
 
 
-@website.route('/login')
+@main.route('/login')
 def login():
     google = oauth.create_client('google')
-    redirect_uri = url_for('website.authorize', _external=True)
+    redirect_uri = url_for('main.authorize', _external=True)
     return google.authorize_redirect(redirect_uri)
 
 
-@website.route('/authorize')
+@main.route('/authorize')
 def authorize():
     google = oauth.create_client('google')
     token = google.authorize_access_token()
@@ -82,12 +78,12 @@ def authorize():
     return redirect('/')
 
 
-@website.route('/activate', methods=['GET', 'POST'])
+@main.route('/activate', methods=['GET', 'POST'])
 @auth_required
 def activate():
 
     if database.game_status() == 1:
-        return redirect(url_for('website.active'))
+        return redirect(url_for('main.active'))
 
     if request.method == 'POST':
 
@@ -101,12 +97,12 @@ def activate():
     return render_template('activate.html')
 
 
-@website.route('/active', methods=['GET', 'POST'])
+@main.route('/active', methods=['GET', 'POST'])
 @auth_required
 def active():
 
     if database.game_status() == 0:
-        return redirect(url_for('website.home'))
+        return redirect(url_for('main.home'))
 
     if request.method == 'POST':
 
@@ -117,7 +113,7 @@ def active():
     return render_template('active.html')
 
 
-@website.route('/logout')
+@main.route('/logout')
 def logout():
     for key in list(session.keys()):
         session.pop(key)
