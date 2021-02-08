@@ -1,9 +1,10 @@
 from flask import render_template, redirect, url_for, request, session, current_app
-from . import main
+from . import main, events
 from functools import wraps
 from app.sql import sql_master as database
+from .. import socketio as sio
 import os
-from flask import session
+import time
 
 from flask_socketio import emit, send
 from .. import socketio
@@ -87,7 +88,9 @@ def authorize():
 @auth_required
 def activate():
 
-    if database.game_status() == 1:
+    status = events.check_status()
+
+    if status == 1:
         return redirect(url_for('main.active'))
 
     if request.method == 'POST':
@@ -106,8 +109,10 @@ def activate():
 @auth_required
 def active():
 
-    if database.game_status() == 0:
-        return redirect(url_for('main.home'))
+    status = events.check_status()
+
+    if status == 0:
+        return redirect(url_for('main.activate'))
 
     if request.method == 'POST':
 

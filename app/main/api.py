@@ -40,7 +40,7 @@ def generate_token():
         return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required'})
 
     elif auth and (auth.username == secrets.api_user and auth.password == secrets.api_password):
-        token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=3)}, current_app.config['SECRET_KEY'])
+        token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1095)}, current_app.config['SECRET_KEY'])
 
         return token
 
