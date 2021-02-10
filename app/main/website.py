@@ -88,39 +88,49 @@ def authorize():
 @auth_required
 def activate():
 
-    status = events.check_status()
-
-    if status == 1:
-        return redirect(url_for('main.active'))
-
     if request.method == 'POST':
 
         form_dict = request.form.to_dict()
         form_dict['status'] = 1
+        print(form_dict)
 
-        database.update(form_dict)
+        events.activate(form_dict)
 
-        return render_template('spinner.html')
+        return redirect(url_for('main.active'))
 
-    return render_template('activate.html')
+    status = events.session_lookup('40469', 'status')
+    print(status)
+
+    if status == 1:
+        print(status)
+        return redirect(url_for('main.active'))
+
+    if status == 0:
+        return render_template('activate.html')
+
+    return 'Client is offline!'
 
 
 @main.route('/active', methods=['GET', 'POST'])
 @auth_required
 def active():
 
-    status = events.check_status()
+    status = events.session_lookup('40469', 'status')
+    print(status)
+
+    if request.method == 'POST':
+
+        events.activate({'status': 0})
+
+        return redirect(url_for('main.activate'))
 
     if status == 0:
         return redirect(url_for('main.activate'))
 
-    if request.method == 'POST':
+    if status == 1:
+        return render_template('active.html')
 
-        database.update({'status': 0})
-
-        return render_template('spinner.html')
-
-    return render_template('active.html')
+    return 'Client is offline!'
 
 
 @main.route('/logout')

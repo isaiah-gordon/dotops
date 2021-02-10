@@ -4,36 +4,25 @@ import jwt
 from functools import wraps
 from .. import socketio as sio
 
-test_dict = {
-    'duration': 1,
-    'manager_id': '331',
-    'name1': 'Jack',
-    'name2': 'Jill',
-    'name3': 'Hill',
-    'product': 'donut',
-    'status': '1'
-}
 
 active_sessions = {}
+session_id_lookup = {}
 
-status = 0
+
+def session_lookup(store_number, key):
+    try:
+        session_id = session_id_lookup[store_number]
+        value = active_sessions[session_id][key]
+    except Exception as e:
+        print(e)
+        return 'offline'
+
+    return value
 
 
-def check_status():
-    global status
-
-    sio.send('status_check')
-
-    @sio.on('status')
-    def handle_message(data):
-        global status
-        print('received message: ' + str(data))
-
-        status = data
-
-    sio.sleep(seconds=0.02)
-
-    return status
+def session_set(store_number, key, new_value):
+    session_id = session_id_lookup[store_number]
+    active_sessions[session_id][key] = new_value
 
 
 def token_required(f):
@@ -71,18 +60,29 @@ def connect():
         disconnect()
         return
 
+    sio.sleep(seconds=0.02)
+    emit('handshake')
+
 
 @sio.on('disconnect')
 def disconnect():
     print(request.sid, 'disconnected')
+    session_id_lookup.pop(active_sessions[request.sid]['store_number'])
     active_sessions.pop(request.sid, None)
-    print('ACTIVE SESSIONS:', active_sessions)
 
+    print('ACTIVE SESSIONS:', active_sessions)
+    print('SESSION LOOKUP:', session_id_lookup)
 
 
 @sio.on('handshake')
 def handshake(data):
 
     active_sessions[request.sid] = data
+    session_id_lookup[data['store_number']] = request.sid
     print('ACTIVE SESSIONS:', active_sessions)
-    emit('command', 'like tacos?')
+    print('SESSION LOOKUP:', session_id_lookup)
+
+
+def activate(data):
+    sio.emit('command', data)
+
