@@ -4,9 +4,7 @@ from functools import wraps
 from app.sql import sql_master as database
 from .. import socketio as sio
 import os
-import time
 
-from flask_socketio import emit, send
 from .. import socketio
 
 from authlib.integrations.flask_client import OAuth
@@ -92,17 +90,14 @@ def activate():
 
         form_dict = request.form.to_dict()
         form_dict['status'] = 1
-        print(form_dict)
 
         events.activate(form_dict)
 
         return redirect(url_for('main.active'))
 
     status = events.session_lookup('40469', 'status')
-    print(status)
 
     if status == 1:
-        print(status)
         return redirect(url_for('main.active'))
 
     if status == 0:
@@ -116,7 +111,6 @@ def activate():
 def active():
 
     status = events.session_lookup('40469', 'status')
-    print(status)
 
     if request.method == 'POST':
 
