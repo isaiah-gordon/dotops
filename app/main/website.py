@@ -1,8 +1,7 @@
 from flask import render_template, redirect, url_for, request, session, current_app
-from . import main, events
+from . import main, events, secrets
 from functools import wraps
 from app.sql import sql_master as database
-from .. import socketio as sio
 import os
 
 from .. import socketio
@@ -29,7 +28,7 @@ def auth_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
 
-        authorized_users = ['isaiah.jk.gordon@gmail.com']
+        authorized_users = secrets.authorized_tester_emails
 
         user = dict(session).get('email', None)
         # You would add a check here and use the user id or something to fetch
@@ -54,7 +53,7 @@ def index():
 
 @main.route('/welcome')
 def welcome():
-    return render_template('index.html')
+    return render_template('welcome.html')
 
 
 @main.route('/info')

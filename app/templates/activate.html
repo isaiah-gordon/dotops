@@ -26,13 +26,14 @@
   <body>
 
     <div class='topnav'>
-      <img class="logo" src="static/images/logo.png">
+      <img class="logo" onclick="location.href = '{{ url_for('main.home') }}'" src="static/images/logo.png">
     </div>
 
     <form id="form" class="center" action="{{ url_for('main.activate') }}" method="post">
 
       <select id="product_select" class="select_menu" name="product" required>
         <option disabled selected value> SELECT PRODUCT </option>
+        <option value="spicy_chicken">Spicy McChicken 🔥</option>
         <option value="donut">Donuts</option>
         <option value="muffin">Muffins</option>
         <option value="pie">Apple Pie</option>
