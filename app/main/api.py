@@ -1,6 +1,7 @@
 from flask import request, current_app, make_response, jsonify
 from . import interface, events, secrets
 import jwt
+import json
 from functools import wraps
 from datetime import datetime, timedelta
 from app.sql import sql_master as database
@@ -69,31 +70,45 @@ def check_schedule():
     print(games_to_activate)
 
     for game in games_to_activate:
-        if game['stores'] != 'random':
-            stores_list = game['stores'].strip('][').split(', ')
-            activation_specs = {'product': game['product'],
-                                'end_time': str(game['end_time']),
-                                'status': 'external_game'}
 
-            if len(stores_list) == 2:
-                activation_specs.update({'name1': database.store_profile_lookup(stores_list[0], 'store_short_name'),
-                                         'name2': database.store_profile_lookup(stores_list[1], 'store_short_name'),
-                                         'name3': '...',
-                                         'scoreboard_config': 'dual_counters'})
+        database.command("""
+        UPDATE scheduled_games
+        SET status = '1'
+        WHERE id = '{0}'
+        """.format(game['id']))
 
 
-            if len(stores_list) == 3:
-                activation_specs.update({'name1': database.store_profile_lookup(stores_list[0], 'store_short_name'),
-                                         'name2': database.store_profile_lookup(stores_list[1], 'store_short_name'),
-                                         'name3': database.store_profile_lookup(stores_list[2], 'store_short_name'),
-                                         'scoreboard_config': 'counters'})
+        stores_list = game['stores'].strip('][').split(', ')
+        activation_specs = {'product': game['product'],
+                            'end_time': str(game['end_time']),
+                            'status': 'external_game',
+                            'external_id': game['id'],
+                            'stores_list': stores_list}
 
-            for store in stores_list:
-                pass
+        if len(stores_list) == 2:
+            activation_specs.update({'name1': database.store_profile_lookup(stores_list[0], 'store_short_name'),
+                                     'name2': database.store_profile_lookup(stores_list[1], 'store_short_name'),
+                                     'name3': '...',
+                                     'scoreboard_config': 'dual_counters'})
 
-            print(activation_specs)
 
-            events.activate(activation_specs)
+        if len(stores_list) == 3:
+            activation_specs.update({'name1': database.store_profile_lookup(stores_list[0], 'store_short_name'),
+                                     'name2': database.store_profile_lookup(stores_list[1], 'store_short_name'),
+                                     'name3': database.store_profile_lookup(stores_list[2], 'store_short_name'),
+                                     'scoreboard_config': 'counters'})
+
+        for store in stores_list:
+            try:
+                store_id = events.socket_id_lookup[store]
+                print(store_id)
+                events.activate(store_id, activation_specs)
+            except KeyError:
+                print(store, 'is offline!')
+
+        print(activation_specs)
+
+
 
 
     return make_response('...', 200)

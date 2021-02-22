@@ -95,7 +95,7 @@ def activate():
         form_dict['status'] = 'internal_game'
         form_dict['scoreboard_config'] = 'counters'
 
-        events.activate(form_dict)
+        events.activate(events.socket_id_lookup[session['store']], form_dict)
         print(form_dict)
 
         return redirect(url_for('main.active'))
@@ -119,7 +119,7 @@ def active():
 
     if request.method == 'POST':
 
-        events.activate({'status': 'idle'})
+        events.activate(events.socket_id_lookup[session['store']], {'status': 'idle'})
 
         return redirect(url_for('main.activate'))
 

@@ -1,8 +1,10 @@
 from flask import request, current_app
 from flask_socketio import emit, disconnect
 import jwt
+import json
 from functools import wraps
 from .. import socketio as sio
+from app.sql import sql_master as database
 
 
 active_sockets = {}
@@ -61,6 +63,42 @@ def handshake(data):
     print('SOCKET LOOKUP:', socket_id_lookup)
 
 
-def activate(data):
-    sio.emit('command', data)
+@sio.on('score_report')
+def score_report(game_id, client_score):
+
+    game_scores_str = database.query("""
+        SELECT scores
+        FROM scheduled_games
+        WHERE id = {0}
+    """.format(game_id))
+
+    game_scores_dict = json.loads(game_scores_str)
+
+    game_scores_dict.update(client_score)
+
+    game_scores_str = json.dumps(game_scores_dict)
+
+    database.command("""
+        UPDATE scheduled_games
+        SET scores = {0}
+        WHERE id = {1}
+    """.format(game_scores_str, game_id))
+
+
+@sio.on('pull_scores')
+def pull_scores(game_id):
+
+    game_scores_str = database.query("""
+        SELECT scores
+        FROM scheduled_games
+        WHERE id = {0}
+    """.format(game_id))
+
+    game_scores_dict = json.loads(game_scores_str)
+
+    sio.emit('receive_game_scores', game_scores_dict)
+
+
+def activate(socket_id, data):
+    sio.emit('activate', data, room=socket_id)
 

@@ -59,3 +59,7 @@ def query(sql_query):
     dotops_database.commit()
 
     return result
+
+def command(sql_query):
+    cursor.execute(sql_query)
+    dotops_database.commit()
