@@ -72,7 +72,7 @@ def score_report(report_data):
         WHERE id = {0}
     """.format(report_data['game_id']))
 
-    game_scores_dict = json.loads(game_scores_str)
+    game_scores_dict = json.loads(game_scores_str[0])
 
     game_scores_dict.update(report_data['client_score'])
 
