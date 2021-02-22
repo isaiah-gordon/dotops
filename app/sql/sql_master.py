@@ -2,9 +2,6 @@ import mysql.connector
 from mysql.connector.constants import ClientFlag
 import os
 
-from datetime import datetime
-import pytz
-
 # LOCAL TESTING
 # config = {
 #     'user': os.environ.get("database_user"),
@@ -62,12 +59,3 @@ def query(sql_query):
     dotops_database.commit()
 
     return result
-
-
-def update(post_dict):
-
-    for key in post_dict:
-        sql = "UPDATE active_game SET %s = '%s'" % (key, post_dict[key])
-        cursor.execute(sql)
-
-    dotops_database.commit()
