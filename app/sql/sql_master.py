@@ -2,6 +2,22 @@ import mysql.connector
 from mysql.connector.constants import ClientFlag
 import os
 
+from datetime import datetime
+import pytz
+
+# LOCAL TESTING
+# config = {
+#     'user': os.environ.get("database_user"),
+#     'password': os.environ.get("database_password"),
+#     'host': os.environ.get("database_host"),
+#     'client_flags': [ClientFlag.SSL],
+#     'ssl_ca': 'ssl/server-ca.pem',
+#     'ssl_cert': 'ssl/client-cert.pem',
+#     'ssl_key': 'ssl/client-key.pem',
+#     'database': 'database1'
+# }
+
+# SERVER CONFIG
 config = {
     'user': os.environ.get("database_user"),
     'password': os.environ.get("database_password"),
@@ -15,23 +31,37 @@ config = {
 
 dotops_database = mysql.connector.connect(**config)
 
-cursor = dotops_database.cursor()
+cursor = dotops_database.cursor(dictionary=True)
 
 
-def game_status():
-    cursor.execute("SELECT status FROM active_game")
-
+def store_profile_lookup(store_number, search_key):
+    cursor.execute("SELECT {0} FROM store_profiles WHERE store_number = '{1}'".format(search_key, store_number))
     result = cursor.fetchall()
 
-    return result[0][0]
+    dotops_database.commit()
+    return result[0][search_key]
 
 
-def read():
-    cursor.execute("SELECT * FROM active_game")
-
+def find_user(email):
+    cursor.execute("SELECT * FROM users WHERE email = '%s'" % email)
     result = cursor.fetchall()
+
+    if not result:
+        return False
+
+    dotops_database.commit()
 
     return result[0]
+
+
+def query(sql_query):
+    cursor.execute(sql_query)
+
+    result = cursor.fetchall()
+
+    dotops_database.commit()
+
+    return result
 
 
 def update(post_dict):
@@ -41,10 +71,3 @@ def update(post_dict):
         cursor.execute(sql)
 
     dotops_database.commit()
-
-# cursor.execute("SELECT * FROM active_game")
-#
-# myresult = cursor.fetchall()
-#
-# for x in myresult:
-#   print(x)

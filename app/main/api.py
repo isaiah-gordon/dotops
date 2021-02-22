@@ -1,8 +1,8 @@
 from flask import request, current_app, make_response, jsonify
-from . import interface, secrets
+from . import interface, events, secrets
 import jwt
 from functools import wraps
-import datetime
+from datetime import datetime, timedelta
 from app.sql import sql_master as database
 
 
@@ -40,28 +40,60 @@ def generate_token():
         return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required'})
 
     elif auth and (auth.username == secrets.api_user and auth.password == secrets.api_password):
-        token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1095)}, current_app.config['SECRET_KEY'])
+        token = jwt.encode({'user': auth.username, 'exp': datetime.utcnow() + timedelta(days=1095)}, current_app.config['SECRET_KEY'])
 
         return token
 
     return make_response('Authorization is required!', 401, {'WWW-Authenticate': 'Basic realm="Login Required'})
 
 
-@interface.route('/active_game', methods=['GET', 'POST'])
+@interface.route('/check_schedule', methods=['GET'])
 @token_required
-def active_game():
-    json_post = jsonify({'status': database.read()[0],
-                         'product': database.read()[1],
-                         'duration': database.read()[2],
-                         'name1': database.read()[3],
-                         'name2': database.read()[4],
-                         'name3': database.read()[5],
-                         'manager_id': database.read()[6]
-                         })
+def check_schedule():
 
-    if request.method == 'POST':
-        json_post = request.get_json()
+    print('Checking the schedule...')
 
-        database.update(json_post)
+    utc_time = datetime.utcnow().time()
+    utc_dt = datetime.utcnow()
+    utc_day = utc_dt.strftime('%a')
 
-    return json_post
+    games_to_activate = database.query("""
+            SELECT *
+            FROM scheduled_games
+            WHERE status = 0
+            AND day_of_week = '{0}'
+            AND '{1}' >= start_time
+            AND '{1}' <= end_time
+        """.format(utc_day, utc_time))
+
+    print(games_to_activate)
+
+    for game in games_to_activate:
+        if game['stores'] != 'random':
+            stores_list = game['stores'].strip('][').split(', ')
+            activation_specs = {'product': game['product'],
+                                'end_time': str(game['end_time']),
+                                'status': 'external_game'}
+
+            if len(stores_list) == 2:
+                activation_specs.update({'name1': database.store_profile_lookup(stores_list[0], 'store_short_name'),
+                                         'name2': database.store_profile_lookup(stores_list[1], 'store_short_name'),
+                                         'name3': '...',
+                                         'scoreboard_config': 'dual_counters'})
+
+
+            if len(stores_list) == 3:
+                activation_specs.update({'name1': database.store_profile_lookup(stores_list[0], 'store_short_name'),
+                                         'name2': database.store_profile_lookup(stores_list[1], 'store_short_name'),
+                                         'name3': database.store_profile_lookup(stores_list[2], 'store_short_name'),
+                                         'scoreboard_config': 'counters'})
+
+            for store in stores_list:
+                pass
+
+            print(activation_specs)
+
+            events.activate(activation_specs)
+
+
+    return make_response('...', 200)

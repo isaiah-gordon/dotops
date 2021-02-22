@@ -5,23 +5,23 @@ from functools import wraps
 from .. import socketio as sio
 
 
-active_sessions = {}
-session_id_lookup = {}
+active_sockets = {}
+socket_id_lookup = {}
 
 
-def session_lookup(store_number, key):
+def socket_lookup(store_number, key):
     try:
-        session_id = session_id_lookup[store_number]
-        value = active_sessions[session_id][key]
+        socket_id = socket_id_lookup[store_number]
+        value = active_sockets[socket_id][key]
     except:
         return 'offline'
 
     return value
 
 
-def session_set(store_number, key, new_value):
-    session_id = session_id_lookup[store_number]
-    active_sessions[session_id][key] = new_value
+def socket_set(store_number, key, new_value):
+    socket_id = socket_id_lookup[store_number]
+    active_sockets[socket_id][key] = new_value
 
 @sio.on('connect')
 def connect():
@@ -41,26 +41,24 @@ def connect():
 
 @sio.on('disconnect')
 def disconnect():
-    print('THIS:   ', session_id_lookup[active_sessions[request.sid]['store_number']])
-
-    if session_id_lookup[active_sessions[request.sid]['store_number']] == request.sid:
-        session_id_lookup.pop(active_sessions[request.sid]['store_number'], None)
+    if socket_id_lookup[active_sockets[request.sid]['store_number']] == request.sid:
+        socket_id_lookup.pop(active_sockets[request.sid]['store_number'], None)
 
     print(request.sid, 'disconnected')
-    if request.sid in active_sessions:
-        active_sessions.pop(request.sid, None)
+    if request.sid in active_sockets:
+        active_sockets.pop(request.sid, None)
 
-    print('ACTIVE SESSIONS:', active_sessions)
-    print('SESSION LOOKUP:', session_id_lookup)
+    print('ACTIVE SOCKETS:', active_sockets)
+    print('SOCKET LOOKUP:', socket_id_lookup)
 
 
 @sio.on('handshake')
 def handshake(data):
 
-    active_sessions[request.sid] = data
-    session_id_lookup[data['store_number']] = request.sid
-    print('ACTIVE SESSIONS:', active_sessions)
-    print('SESSION LOOKUP:', session_id_lookup)
+    active_sockets[request.sid] = data
+    socket_id_lookup[data['store_number']] = request.sid
+    print('ACTIVE SOCKETS:', active_sockets)
+    print('SOCKET LOOKUP:', socket_id_lookup)
 
 
 def activate(data):

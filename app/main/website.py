@@ -28,18 +28,17 @@ def auth_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
 
-        authorized_users = secrets.authorized_tester_emails
+        user_email = dict(session).get('email', None)
 
-        user = dict(session).get('email', None)
-        # You would add a check here and use the user id or something to fetch
-        # the other data for that user/check if they exist
-        if user in authorized_users:
-            return f(*args, **kwargs)
-
-        elif user is None:
+        if user_email is None:
             return redirect(url_for('main.welcome'))
 
-        elif user not in authorized_users:
+        user = database.find_user(user_email)
+
+        if user:
+            return f(*args, **kwargs)
+
+        elif not user:
             email = dict(session).get('email', None)
             return f'Access denied: Your account \" {email} \" is not authorized!'
 
@@ -78,6 +77,11 @@ def authorize():
     # do something with the token and profile
     session['email'] = user_info['email']
     session['first_name'] = user_info['given_name']
+
+    user_profile = database.find_user(user_info['email'])
+    if user_profile:
+        session['store'] = user_profile['store']
+
     return redirect('/')
 
 
@@ -88,18 +92,20 @@ def activate():
     if request.method == 'POST':
 
         form_dict = request.form.to_dict()
-        form_dict['status'] = 1
+        form_dict['status'] = 'internal_game'
+        form_dict['scoreboard_config'] = 'counters'
 
         events.activate(form_dict)
+        print(form_dict)
 
         return redirect(url_for('main.active'))
 
-    status = events.session_lookup('40469', 'status')
+    status = events.socket_lookup(session['store'], 'status')
 
-    if status == 1:
+    if status == 'internal_game':
         return redirect(url_for('main.active'))
 
-    if status == 0:
+    if status == 'idle':
         return render_template('activate.html')
 
     return 'Client is offline!'
@@ -109,18 +115,18 @@ def activate():
 @auth_required
 def active():
 
-    status = events.session_lookup('40469', 'status')
+    status = events.socket_lookup(session['store'], 'status')
 
     if request.method == 'POST':
 
-        events.activate({'status': 0})
+        events.activate({'status': 'idle'})
 
         return redirect(url_for('main.activate'))
 
-    if status == 0:
+    if status == 'idle':
         return redirect(url_for('main.activate'))
 
-    if status == 1:
+    if status == 'internal_game':
         return render_template('active.html')
 
     return 'Client is offline!'
