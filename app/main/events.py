@@ -87,12 +87,13 @@ def score_report(report_data):
 
 @sio.on('pull_scores')
 def pull_scores(game_id):
+    print('HIT!')
 
     game_scores_str = database.query("""
         SELECT scores
         FROM scheduled_games
         WHERE id = {0}
-    """.format(game_id[0]))
+    """.format(game_id))[0]['scores']
 
     game_scores_dict = json.loads(game_scores_str)
 

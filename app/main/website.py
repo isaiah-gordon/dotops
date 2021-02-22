@@ -57,7 +57,6 @@ def welcome():
 
 @main.route('/info')
 def info():
-    socketio.send('Hello friend!')
     return render_template('info.html')
 
 
