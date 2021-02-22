@@ -64,17 +64,17 @@ def handshake(data):
 
 
 @sio.on('score_report')
-def score_report(game_id, client_score):
+def score_report(report_data):
 
     game_scores_str = database.query("""
         SELECT scores
         FROM scheduled_games
         WHERE id = {0}
-    """.format(game_id))
+    """.format(report_data['game_id']))
 
     game_scores_dict = json.loads(game_scores_str)
 
-    game_scores_dict.update(client_score)
+    game_scores_dict.update(report_data['client_score'])
 
     game_scores_str = json.dumps(game_scores_dict)
 
@@ -82,7 +82,7 @@ def score_report(game_id, client_score):
         UPDATE scheduled_games
         SET scores = {0}
         WHERE id = {1}
-    """.format(game_scores_str, game_id))
+    """.format(game_scores_str, report_data['game_id']))
 
 
 @sio.on('pull_scores')
@@ -92,7 +92,7 @@ def pull_scores(game_id):
         SELECT scores
         FROM scheduled_games
         WHERE id = {0}
-    """.format(game_id))
+    """.format(game_id[0]))
 
     game_scores_dict = json.loads(game_scores_str)
 
