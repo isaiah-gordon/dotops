@@ -25,6 +25,7 @@ def socket_set(store_number, key, new_value):
     socket_id = socket_id_lookup[store_number]
     active_sockets[socket_id][key] = new_value
 
+
 @sio.on('connect')
 def connect():
     print(request.sid, 'connected')
@@ -65,24 +66,37 @@ def handshake(data):
 
 @sio.on('score_report')
 def score_report(report_data):
+    print('REPORT DATA:', report_data)
 
     game_scores_str = database.query("""
         SELECT scores
         FROM scheduled_games
         WHERE id = {0}
-    """.format(report_data['game_id']))
+    """.format(report_data['game_id']))[0]['scores']
 
-    game_scores_dict = json.loads(game_scores_str[0])
+    print('INITIAL GAME SCORES:', game_scores_str)
 
-    game_scores_dict.update(report_data['client_score'])
+    game_scores_dict = json.loads(game_scores_str)
+
+    # game_scores_dict.update(report_data['client_score'])
+
+    for key in game_scores_dict:
+        if key in report_data['client_score']:
+            game_scores_dict[key] = game_scores_dict[key] + report_data['client_score'][key]
+        else:
+            pass
 
     game_scores_str = json.dumps(game_scores_dict)
 
+    print('DUMPED GAME SCORES:', game_scores_str)
+
     database.command("""
         UPDATE scheduled_games
-        SET scores = {0}
+        SET scores = '{0}'
         WHERE id = {1}
     """.format(game_scores_str, report_data['game_id']))
+
+    print('UPDATED GAME SCORES:', game_scores_str)
 
 
 @sio.on('pull_scores')

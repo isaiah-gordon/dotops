@@ -2,7 +2,15 @@ import mysql.connector
 from mysql.connector.constants import ClientFlag
 import os
 
-# LOCAL TESTING
+# LOCAL DATABASE TESTING
+# config = {
+#     'user': 'root',
+#     'password': 'local_database_password',
+#     'host': '127.0.0.1',
+#     'database': 'development-sql-server'
+# }
+
+# MODULE TESTING (DEPLOYED DATABASE)
 # config = {
 #     'user': os.environ.get("database_user"),
 #     'password': os.environ.get("database_password"),
@@ -14,7 +22,7 @@ import os
 #     'database': 'database1'
 # }
 
-# SERVER CONFIG
+# DEPLOYED SERVER CONFIG
 config = {
     'user': os.environ.get("database_user"),
     'password': os.environ.get("database_password"),
