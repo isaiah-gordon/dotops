@@ -74,7 +74,6 @@ def score_report(report_data):
         WHERE id = {0}
     """.format(report_data['game_id']))[0]['scores']
 
-    print('INITIAL GAME SCORES:', game_scores_str)
 
     game_scores_dict = json.loads(game_scores_str)
 
@@ -88,20 +87,15 @@ def score_report(report_data):
 
     game_scores_str = json.dumps(game_scores_dict)
 
-    print('DUMPED GAME SCORES:', game_scores_str)
-
     database.command("""
         UPDATE scheduled_games
         SET scores = '{0}'
         WHERE id = {1}
     """.format(game_scores_str, report_data['game_id']))
 
-    print('UPDATED GAME SCORES:', game_scores_str)
-
 
 @sio.on('pull_scores')
 def pull_scores(game_id):
-    print('HIT!')
 
     game_scores_str = database.query("""
         SELECT scores
