@@ -3,6 +3,7 @@ from . import main, events, secrets
 from functools import wraps
 from app.sql import sql_master as database
 import os
+from datetime import datetime, timedelta
 
 from .. import socketio
 
@@ -94,7 +95,11 @@ def activate():
         form_dict['status'] = 'internal_game'
         form_dict['scoreboard_config'] = 'counters'
 
+        utc_time_end = (datetime.utcnow() + timedelta(hours=int(form_dict['duration']))).time()
+        form_dict['end_time'] = utc_time_end.strftime('%H:%M:%S')
+
         events.activate(events.socket_id_lookup[session['store']], form_dict)
+
         print(form_dict)
 
         return redirect(url_for('main.active'))
