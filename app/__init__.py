@@ -1,11 +1,12 @@
 from flask import Flask
 from flask_socketio import SocketIO
+import os
 
 socketio = SocketIO()
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'G4zbymF@4$5E9Kyk8uZZS_#_hK=LAR'
+    app.config['SECRET_KEY'] = os.environ.get("secret_key")
 
     from .main import main, interface
     app.register_blueprint(main)
