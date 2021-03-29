@@ -97,8 +97,23 @@ def activate():
 
         if database.store_profile_lookup(session['store'], 'drive_thru_type') == 'single':
             form_dict['scoreboard_config'] = 'dual_counters'
+            if not form_dict['name1']:
+                form_dict['name1'] = 'Drive Thru'
+
+            if not form_dict['name2']:
+                form_dict['name2'] = 'Counter'
+
         else:
             form_dict['scoreboard_config'] = 'counters'
+
+            if not form_dict['name1']:
+                form_dict['name1'] = 'Lane 1'
+
+            if not form_dict['name2']:
+                form_dict['name2'] = 'Lane 2'
+
+            if not form_dict['name3']:
+                form_dict['name3'] = 'Counter'
 
         utc_time_end = (datetime.utcnow() + timedelta(hours=int(form_dict['duration']))).time()
         form_dict['end_time'] = utc_time_end.strftime('%H:%M:%S')

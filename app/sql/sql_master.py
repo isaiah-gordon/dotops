@@ -3,12 +3,12 @@ from mysql.connector.constants import ClientFlag
 import os
 
 # LOCAL DATABASE TESTING
-# config = {
-#     'user': 'root',
-#     'password': 'local_database_password',
-#     'host': '127.0.0.1',
-#     'database': 'development-sql-server'
-# }
+config = {
+    'user': 'root',
+    'password': 'local_database_password',
+    'host': '127.0.0.1',
+    'database': 'development-sql-server'
+}
 
 # MODULE TESTING (DEPLOYED DATABASE)
 # config = {
@@ -23,16 +23,16 @@ import os
 # }
 
 # DEPLOYED SERVER CONFIG
-config = {
-    'user': os.environ.get("database_user"),
-    'password': os.environ.get("database_password"),
-    'host': os.environ.get("database_host"),
-    'client_flags': [ClientFlag.SSL],
-    'ssl_ca': 'app/sql/ssl/server-ca.pem',
-    'ssl_cert': 'app/sql/ssl/client-cert.pem',
-    'ssl_key': 'app/sql/ssl/client-key.pem',
-    'database': 'database1'
-}
+# config = {
+#     'user': os.environ.get("database_user"),
+#     'password': os.environ.get("database_password"),
+#     'host': os.environ.get("database_host"),
+#     'client_flags': [ClientFlag.SSL],
+#     'ssl_ca': 'app/sql/ssl/server-ca.pem',
+#     'ssl_cert': 'app/sql/ssl/client-cert.pem',
+#     'ssl_key': 'app/sql/ssl/client-key.pem',
+#     'database': 'database1'
+# }
 
 
 
