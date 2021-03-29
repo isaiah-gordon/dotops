@@ -51,6 +51,7 @@ def auth_required(f):
 def index():
     return render_template('home.html')
 
+
 @main.route('/welcome')
 def welcome():
     return render_template('welcome.html')
@@ -93,7 +94,11 @@ def activate():
 
         form_dict = request.form.to_dict()
         form_dict['status'] = 'internal_game'
-        form_dict['scoreboard_config'] = 'counters'
+
+        if database.store_profile_lookup(session['store'], 'drive_thru_type') == 'single':
+            form_dict['scoreboard_config'] = 'dual_counters'
+        else:
+            form_dict['scoreboard_config'] = 'counters'
 
         utc_time_end = (datetime.utcnow() + timedelta(hours=int(form_dict['duration']))).time()
         form_dict['end_time'] = utc_time_end.strftime('%H:%M:%S')

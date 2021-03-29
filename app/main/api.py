@@ -108,7 +108,4 @@ def check_schedule():
 
         print(activation_specs)
 
-
-
-
     return make_response('...', 200)
