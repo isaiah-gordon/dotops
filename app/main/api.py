@@ -1,5 +1,5 @@
 from flask import request, current_app, make_response, jsonify
-from . import interface, events, secrets
+from . import interface, secrets
 import jwt
 import json
 from functools import wraps

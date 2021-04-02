@@ -2,8 +2,7 @@ from flask import Flask
 from flask_socketio import SocketIO
 import os
 
-socketio = SocketIO()
-
+# socketio = SocketIO()
 
 def create_app():
     app = Flask(__name__)
@@ -13,6 +12,6 @@ def create_app():
     app.register_blueprint(main)
     app.register_blueprint(interface, url_prefix='/api')
 
-    socketio.init_app(app)
+    # socketio.init_app(app)
 
     return app

@@ -1,11 +1,11 @@
 from flask import render_template, redirect, url_for, request, session, current_app
-from . import main, events, secrets
+from . import main, secrets
 from functools import wraps
 from app.sql import sql_master as database
 import os
 from datetime import datetime, timedelta
 
-from .. import socketio
+# from .. import socketio
 
 from authlib.integrations.flask_client import OAuth
 
