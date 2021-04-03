@@ -1,5 +1,5 @@
 from flask import request, current_app
-from flask_socketio import emit, disconnect
+# from flask_socketio import emit, disconnect
 import jwt
 import json
 from functools import wraps
