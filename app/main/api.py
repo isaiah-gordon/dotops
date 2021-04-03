@@ -18,7 +18,6 @@ def token_required(f):
 
         try:
             decoded_token = jwt.decode(token, current_app.config['SECRET_KEY'])
-            print(decoded_token)
 
         except:
             return 'Invalid authentication token.'
@@ -74,6 +73,9 @@ def find_next_game(decoded_token):
             
         """.format(utc_day, utc_time, decoded_token['store']))
 
+    if not next_game:
+        return make_response('', 200)
+
     next_game = next_game[0]
 
     next_game['start_time'] = str(next_game['start_time'])
@@ -91,6 +93,7 @@ def lookup_stores(self, store_list):
 
     sql_store_list = store_list.replace('[', '(').replace(']', ')')
     store_list = store_list.strip('][').split(', ')
+
 
     store_details = database.query("""
                 SELECT store_number, store_name, store_short_name, store_image
@@ -113,8 +116,6 @@ def lookup_stores(self, store_list):
 def add_score(decoded_token, game_id):
     json_post = request.get_json()
 
-    print(json_post)
-
     database.command("""
                 UPDATE scheduled_games
                 SET total_sold{0} = total_sold{0} + {1},
@@ -135,8 +136,6 @@ def get_score(self, game_id):
                 WHERE id = {0}
             """.format(game_id))
 
-    print(all_scores)
-
     json_all_scores = json.dumps(all_scores[0])
 
     return make_response(json_all_scores, 200)
@@ -146,8 +145,6 @@ def get_score(self, game_id):
 @interface.route('/check_schedule', methods=['GET'])
 @token_required
 def check_schedule():
-
-    print('Checking the schedule...')
 
     utc_time = datetime.utcnow().time()
     utc_dt = datetime.utcnow()
@@ -161,8 +158,6 @@ def check_schedule():
             AND '{1}' >= start_time
             AND '{1}' <= end_time
         """.format(utc_day, utc_time))
-
-    print(games_to_activate)
 
     for game in games_to_activate:
 
