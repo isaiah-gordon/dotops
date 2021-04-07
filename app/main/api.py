@@ -64,15 +64,16 @@ def find_next_game(decoded_token):
             WHERE start_time = (
             SELECT MIN(start_time)
             FROM scheduled_games
-            WHERE status = 0
-            AND day_of_week = '{0}'
-            AND '{1}' <= start_time
-            AND stores LIKE '%{2}%'
+            WHERE '{1}' <= start_time
             )
             
+            AND status = 0
+            AND day_of_week = '{0}'
+            AND stores LIKE '%{2}%'
             
         """.format(utc_day, utc_time, decoded_token['store']))
 
+    print(next_game)
     if not next_game:
         return make_response('', 200)
 
