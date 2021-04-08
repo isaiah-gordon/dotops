@@ -35,7 +35,6 @@ config = {
 }
 
 
-
 dotops_database = mysql.connector.connect(**config)
 cursor = dotops_database.cursor(dictionary=True, buffered=True)
 
@@ -68,6 +67,7 @@ def query(sql_query):
     dotops_database.commit()
 
     return result
+
 
 def command(sql_query):
     cursor.execute(sql_query)

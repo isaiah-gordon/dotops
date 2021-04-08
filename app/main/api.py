@@ -53,7 +53,11 @@ def generate_token(store_number):
 def find_next_game(decoded_token):
     print('Checking the schedule for next game at {0}'.format(decoded_token['store']))
 
-    utc_time = datetime.utcnow().time()
+    utc_time = datetime.utcnow()
+
+    seconds_since_midnight = (utc_time - utc_time.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
+    utc_delta = timedelta(seconds=seconds_since_midnight)
+
     utc_dt = datetime.utcnow()
     utc_day = utc_dt.strftime('%a')
 
@@ -71,7 +75,7 @@ def find_next_game(decoded_token):
             AND day_of_week = '{0}'
             AND stores LIKE '%{2}%'
             
-        """.format(utc_day, utc_time, decoded_token['store']))
+        """.format(utc_day, utc_delta, decoded_token['store']))
 
     print(next_game)
     if not next_game:
