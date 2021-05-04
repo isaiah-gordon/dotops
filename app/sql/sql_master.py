@@ -59,10 +59,13 @@ def find_user(email):
     return result[0]
 
 
-def query(sql_query):
-    cursor.execute(sql_query)
+def query(sql_query, return_dict):
 
-    result = cursor.fetchall()
+    query_cursor = dotops_database.cursor(dictionary=return_dict, buffered=True)
+
+    query_cursor.execute(sql_query)
+
+    result = query_cursor.fetchall()
 
     dotops_database.commit()
 

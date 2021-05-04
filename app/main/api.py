@@ -3,7 +3,7 @@ from . import interface, secrets
 import jwt
 import json
 from functools import wraps
-from datetime import datetime, timedelta
+import datetime
 from app.sql import sql_master as database
 
 
@@ -41,7 +41,7 @@ def generate_token(store_number):
         return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required'})
 
     elif auth and (auth.username == secrets.api_user and auth.password == secrets.api_password):
-        token = jwt.encode({'store': store_number, 'issuer': auth.username, 'exp': datetime.utcnow() + timedelta(days=1095)}, current_app.config['SECRET_KEY'])
+        token = jwt.encode({'store': store_number, 'issuer': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1095)}, current_app.config['SECRET_KEY'])
 
         return token
 
@@ -53,12 +53,12 @@ def generate_token(store_number):
 def find_next_game(decoded_token):
     print('Checking the schedule for next game at {0}'.format(decoded_token['store']))
 
-    utc_time = datetime.utcnow()
+    utc_time = datetime.datetime.utcnow()
 
     seconds_since_midnight = (utc_time - utc_time.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
     utc_delta = timedelta(seconds=seconds_since_midnight)
 
-    utc_dt = datetime.utcnow()
+    utc_dt = datetime.datetime.utcnow()
     utc_day = utc_dt.strftime('%a')
 
     next_game = database.query("""
@@ -75,7 +75,7 @@ def find_next_game(decoded_token):
             AND day_of_week = '{0}'
             AND stores LIKE '%{2}%'
             
-        """.format(utc_day, utc_delta, decoded_token['store']))
+        """.format(utc_day, utc_delta, decoded_token['store']), return_dict=True)
 
     print(next_game)
     if not next_game:
@@ -104,7 +104,7 @@ def lookup_stores(self, store_list):
                 SELECT store_number, store_name, store_short_name, store_image
                 FROM store_profiles
                 WHERE store_number IN {0}
-            """.format(sql_store_list))
+            """.format(sql_store_list), return_dict=True)
 
     store_dict = {}
     for store in store_details:
@@ -139,68 +139,74 @@ def get_score(self, game_id):
                 SELECT total_sold0, transactions0, total_sold1, transactions1, total_sold2, transactions2
                 FROM scheduled_games
                 WHERE id = {0}
-            """.format(game_id))
+            """.format(game_id), return_dict=True)
 
     json_all_scores = json.dumps(all_scores[0])
 
     return make_response(json_all_scores, 200)
 
 
-# DEPRECATED CRON ENDPOINT
-@interface.route('/check_schedule', methods=['GET'])
-@token_required
-def check_schedule():
+def strfdelta(timedelta):
 
-    utc_time = datetime.utcnow().time()
-    utc_dt = datetime.utcnow()
+    seconds = timedelta.total_seconds()
+    print(timedelta)
+
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = seconds % 60
+
+    as_time = datetime.datetime(2000, 1, 1, int(hours), int(minutes), int(seconds))
+    string_time = as_time.strftime("%H:%M:%S")
+
+    return string_time
+
+
+@interface.route('/conclude_day', methods=['GET'])
+@token_required
+def conclude_day(self):
+
+    # RECORD RESULTS
+    utc_dt = datetime.datetime.utcnow()
     utc_day = utc_dt.strftime('%a')
 
-    games_to_activate = database.query("""
+    games_today = database.query("""
             SELECT *
             FROM scheduled_games
-            WHERE status = 0
-            AND day_of_week = '{0}'
-            AND '{1}' >= start_time
-            AND '{1}' <= end_time
-        """.format(utc_day, utc_time))
 
-    for game in games_to_activate:
+            WHERE day_of_week = '{0}'
+            AND total_sold0 > 0
+            AND total_sold1 > 0
+            AND status = 0
+        """.format(utc_day), return_dict=False)
 
-        database.command("""
-        UPDATE scheduled_games
-        SET status = '1'
-        WHERE id = '{0}'
-        """.format(game['id']))
+    for x, game in enumerate(games_today):
+        game_mod = list(game)
+        del game_mod[0:2]
 
+        print(game_mod)
 
-        stores_list = game['stores'].strip('][').split(', ')
-        activation_specs = {'product': game['product'],
-                            'end_time': str(game['end_time']),
-                            'status': 'external_game',
-                            'external_id': game['id'],
-                            'stores_list': stores_list}
+        game_mod[0] = utc_dt.strftime("%Y-%m-%d")
+        game_mod[1] = strfdelta(game[3])
+        game_mod[2] = strfdelta(game[4])
 
-        if len(stores_list) == 2:
-            activation_specs.update({'name1': database.store_profile_lookup(stores_list[0], 'store_short_name'),
-                                     'name2': database.store_profile_lookup(stores_list[1], 'store_short_name'),
-                                     'name3': '...',
-                                     'scoreboard_config': 'dual_counters'})
+        games_today[x] = tuple(game_mod)
 
+        print('HEY:   ', games_today[0])
 
-        if len(stores_list) == 3:
-            activation_specs.update({'name1': database.store_profile_lookup(stores_list[0], 'store_short_name'),
-                                     'name2': database.store_profile_lookup(stores_list[1], 'store_short_name'),
-                                     'name3': database.store_profile_lookup(stores_list[2], 'store_short_name'),
-                                     'scoreboard_config': 'counters'})
+    database.command(
+        """
+            INSERT INTO game_records (
+            date, start_time, end_time, product, stores,
+            transactions0, total_sold0,
+            transactions1, total_sold1,
+            transactions2, total_sold2
+            )
+            VALUES {0}
+        """.format(games_today[0])
+    )
 
-        for store in stores_list:
-            try:
-                store_id = events.socket_id_lookup[store]
-                print(store_id)
-                events.activate(store_id, activation_specs)
-            except KeyError:
-                print(store, 'is offline!')
+    # SEND EMAILS
 
-        print(activation_specs)
+    print(games_today)
+    return str(games_today)
 
-    return make_response('...', 200)
