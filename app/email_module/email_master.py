@@ -4,17 +4,12 @@ from email.mime.multipart import MIMEMultipart
 from bs4 import BeautifulSoup
 import os
 
-port = 465  # For SSL
-system_email = os.environ.get("email_address")
-password = os.environ.get("email_password")
-
 
 def modify_template(html_string, mod_dict):
 
     soup = BeautifulSoup(html_string, 'html.parser')
 
     for modification in mod_dict['text']:
-        print(modification)
         text = soup.find(id=modification)
         text.string.replace_with(mod_dict['text'][modification])
 
@@ -25,7 +20,17 @@ def modify_template(html_string, mod_dict):
     return soup
 
 
+def say_something():
+    print('Howdy!! How ya doing???')
+
+
 def send_email(receiver_email, subject, template, data_dict):
+
+    print('SENDING EMAIL...')
+
+    port = 465  # For SSL
+    system_email = os.environ.get("email_address")
+    password = os.environ.get("email_password")
 
     message = MIMEMultipart("alternative")
     message["Subject"] = subject
@@ -52,3 +57,7 @@ def send_email(receiver_email, subject, template, data_dict):
         server.login(system_email, password)
 
         server.sendmail(system_email, receiver_email, message.as_string())
+        print('EMAIL SENT!')
+
+
+# send_email('isaiah.gordon.developer@gmail.com', 'Hello Human Person!', 'templates/email_template.html', cool_stuff)

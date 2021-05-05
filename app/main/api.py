@@ -1,9 +1,12 @@
-from flask import request, current_app, make_response, jsonify
+from flask import request, current_app, make_response
 from . import interface, secrets
 import jwt
 import json
 from functools import wraps
 import datetime
+import pytz
+from app.email_module import email_master
+
 from app.sql import sql_master as database
 
 
@@ -77,7 +80,6 @@ def find_next_game(decoded_token):
             
         """.format(utc_day, utc_delta, decoded_token['store']), return_dict=True)
 
-    print(next_game)
     if not next_game:
         return make_response('', 200)
 
@@ -149,7 +151,6 @@ def get_score(self, game_id):
 def strfdelta(timedelta):
 
     seconds = timedelta.total_seconds()
-    print(timedelta)
 
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
@@ -183,15 +184,11 @@ def conclude_day(self):
         game_mod = list(game)
         del game_mod[0:2]
 
-        print(game_mod)
-
         game_mod[0] = utc_dt.strftime("%Y-%m-%d")
         game_mod[1] = strfdelta(game[3])
         game_mod[2] = strfdelta(game[4])
 
         games_today[x] = tuple(game_mod)
-
-        print('HEY:   ', games_today[0])
 
     database.command(
         """
@@ -206,7 +203,103 @@ def conclude_day(self):
     )
 
     # SEND EMAILS
+    utc_now = pytz.utc.localize(datetime.datetime.utcnow())
+    ast_now = utc_now.astimezone(pytz.timezone("Canada/Atlantic"))
 
-    print(games_today)
-    return str(games_today)
+    store_details = database.query("""
+                SELECT store_number, email, store_name
+                FROM store_profiles
+            """.format(), return_dict=True)
+
+    for store_profile in store_details:
+        store_number = store_profile['store_number']
+
+        email_text_data = {
+            # Per store
+            'this_store_name': store_profile['store_name'],
+            'date': ast_now.strftime('%A, %B %d, %Y'),
+
+            'this_vic_name': store_profile['store_name'],
+            'this_vic_total': 'N/A',
+
+            'other_vic_name': 'Other Store',
+            'other_vic_total': 'N/A',
+        }
+
+        # store_games : Games played by this store.
+        # game_stores : Stores that played the current game.
+
+        store_games = []
+        game_number = 0
+        for game in games_today:
+            game_stores = game[4].strip('][').split(', ')
+
+            if str(store_number) in game_stores:
+                store_games.append(game)
+            else:
+                continue
+
+            if game[5] < game[7]:
+                score_order = game_stores
+                score_order.reverse()
+            else:
+                score_order = game_stores
+
+            game_times = [game[1], game[2]]
+            for idx, time in enumerate(game_times):
+                time_obj = datetime.datetime.strptime(time, '%H:%M:%S')
+                utc_obj = pytz.utc.localize(time_obj)
+                ast_time = utc_obj.astimezone(pytz.timezone("Canada/Atlantic"))
+                str_time = ast_time.strftime('%I:%M %p')
+                game_times[idx] = str_time
+
+            if score_order[0] == game_stores[0]:
+                place_score_position = [0, 1]
+            else:
+                place_score_position = [1, 0]
+
+            merge_text_data = {
+                # Per game
+                'product_': game[3],
+                'game_time_': game_times[0] + ' - ' + game_times[1],
+
+                'first_store_name_': database.store_profile_lookup(score_order[0], 'store_name'),
+                'first_store_total_sold_': [game[5], game[7]][place_score_position[0]],
+                'first_store_transactions_': [game[6], game[8]][place_score_position[0]],
+
+                'second_store_name_': database.store_profile_lookup(score_order[1], 'store_name'),
+                'second_store_total_sold_': [game[5], game[7]][place_score_position[1]],
+                'second_store_transactions_': [game[6], game[8]][place_score_position[1]]
+            }
+
+            game_number += 1
+            defined_key_merge_text_data = {}
+
+            for key in merge_text_data:
+                merge_text_data[key] = str(merge_text_data[key])
+
+            for key in merge_text_data:
+                defined_key_merge_text_data[key + str(game_number)] = merge_text_data[key]
+
+            email_text_data.update(defined_key_merge_text_data)
+
+        if not store_games:
+            continue
+
+        else:
+
+            images = {
+                'front_page_image': 'https://thumbs.gfycat.com/CompassionateSolidGaur-size_restricted.gif',
+                'product_image_1': 'https://storage.googleapis.com/dotops.app/email_images/muffin.png',
+                'product_image_2': 'https://storage.googleapis.com/dotops.app/email_images/large_fry_spill.png',
+                'advice_image': 'https://i.gifer.com/3O5.gif'
+            }
+
+            email_master.send_email('isaiah.gordon.developer@gmail.com', utc_now.strftime('%H:%M:%S'), 'app/email_module/email_templates/email_template.html', {'text': email_text_data, 'images': images})
+
+    return str('CODE 200')
+
+
+
+
 
