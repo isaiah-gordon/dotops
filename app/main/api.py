@@ -59,7 +59,7 @@ def find_next_game(decoded_token):
     utc_time = datetime.datetime.utcnow()
 
     seconds_since_midnight = (utc_time - utc_time.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
-    utc_delta = timedelta(seconds=seconds_since_midnight)
+    utc_delta = datetime.timedelta(seconds=seconds_since_midnight)
 
     utc_dt = datetime.datetime.utcnow()
     utc_day = utc_dt.strftime('%a')
