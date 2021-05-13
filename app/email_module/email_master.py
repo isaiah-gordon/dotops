@@ -58,6 +58,3 @@ def send_email(receiver_email, subject, template, data_dict):
 
         server.sendmail(system_email, receiver_email, message.as_string())
         print('EMAIL SENT!')
-
-
-# send_email('isaiah.gordon.developer@gmail.com', 'Hello Human Person!', 'templates/email_template.html', cool_stuff)

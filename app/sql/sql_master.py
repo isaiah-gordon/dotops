@@ -47,6 +47,14 @@ def store_profile_lookup(store_number, search_key):
     return result[0][search_key]
 
 
+def product_lookup(product, search_key):
+    cursor.execute("SELECT {0} FROM product_catalogue WHERE product = '{1}'".format(search_key, product))
+    result = cursor.fetchall()
+
+    dotops_database.commit()
+    return result[0][search_key]
+
+
 def find_user(email):
     cursor.execute("SELECT * FROM users WHERE email = '{0}'".format(email))
     result = cursor.fetchall()

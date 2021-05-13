@@ -180,6 +180,9 @@ def conclude_day(self):
             AND status = 0
         """.format(utc_day), return_dict=False)
 
+    if len(games_today) != 2:
+        return str('No games to conclude!')
+
     for x, game in enumerate(games_today):
         game_mod = list(game)
         del game_mod[0:2]
@@ -204,7 +207,7 @@ def conclude_day(self):
 
     # SEND EMAILS
     utc_now = pytz.utc.localize(datetime.datetime.utcnow())
-    ast_now = utc_now.astimezone(pytz.timezone("Canada/Atlantic"))
+    ast_now = utc_now.astimezone(pytz.timezone("America/Halifax"))
 
     store_details = database.query("""
                 SELECT store_number, email, store_name
@@ -246,21 +249,24 @@ def conclude_day(self):
                 score_order = game_stores
 
             game_times = [game[1], game[2]]
+            utc_now = datetime.datetime.utcnow()
+
             for idx, time in enumerate(game_times):
                 time_obj = datetime.datetime.strptime(time, '%H:%M:%S')
-                utc_obj = pytz.utc.localize(time_obj)
-                ast_time = utc_obj.astimezone(pytz.timezone("Canada/Atlantic"))
+                datetime_obj = time_obj.replace(year=utc_now.year, month=utc_now.month, day=utc_now.day)
+                utc_obj = pytz.utc.localize(datetime_obj)
+                ast_time = utc_obj.astimezone(pytz.timezone("America/Halifax"))
                 str_time = ast_time.strftime('%I:%M %p')
                 game_times[idx] = str_time
 
             if score_order[0] == game_stores[0]:
-                place_score_position = [0, 1]
-            else:
                 place_score_position = [1, 0]
+            else:
+                place_score_position = [0, 1]
 
             merge_text_data = {
                 # Per game
-                'product_': game[3],
+                'product_': database.product_lookup(game[3], 'name'),
                 'game_time_': game_times[0] + ' - ' + game_times[1],
 
                 'first_store_name_': database.store_profile_lookup(score_order[0], 'store_name'),
@@ -289,17 +295,18 @@ def conclude_day(self):
         else:
 
             images = {
-                'front_page_image': 'https://thumbs.gfycat.com/CompassionateSolidGaur-size_restricted.gif',
-                'product_image_1': 'https://storage.googleapis.com/dotops.app/email_images/muffin.png',
-                'product_image_2': 'https://storage.googleapis.com/dotops.app/email_images/large_fry_spill.png',
-                'advice_image': 'https://i.gifer.com/3O5.gif'
+                'front_page_image': 'https://media.tenor.com/images/1bcfaadb7ed926566b25b16f256a5d1f/tenor.gif',
+                'advice_image': 'https://media.tenor.com/images/1bcfaadb7ed926566b25b16f256a5d1f/tenor.gif',
+
+                'product_image_1': 'https://storage.googleapis.com/dotops.app/email_images/products/' + games_today[0][3] + '.png',
+                'product_image_2': 'https://storage.googleapis.com/dotops.app/email_images/products/' + games_today[1][3] + '.png'
             }
 
-            email_master.send_email('isaiah.gordon.developer@gmail.com', utc_now.strftime('%H:%M:%S'), 'app/email_module/email_templates/email_template.html', {'text': email_text_data, 'images': images})
+            email_master.send_email(
+                'isaiah.gordon.developer@gmail.com',
+                utc_now.strftime('%H:%M:%S'),
+                'app/email_module/email_templates/email_template.html',
+                {'text': email_text_data, 'images': images}
+            )
 
     return str('CODE 200')
-
-
-
-
-
