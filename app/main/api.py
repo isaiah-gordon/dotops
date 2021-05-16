@@ -2,6 +2,7 @@ from flask import request, current_app, make_response
 from . import interface, secrets
 import jwt
 import json
+import random
 from functools import wraps
 import datetime
 import pytz
@@ -54,7 +55,6 @@ def generate_token(store_number):
 @interface.route('/find_next_game', methods=['GET'])
 @token_required
 def find_next_game(decoded_token):
-    print('Checking the schedule for next game at {0}'.format(decoded_token['store']))
 
     utc_time = datetime.datetime.utcnow()
 
@@ -180,8 +180,8 @@ def conclude_day(self):
             AND status = 0
         """.format(utc_day), return_dict=False)
 
-    if len(games_today) != 2:
-        return str('No games to conclude!')
+    # if len(games_today) != 2:
+    #     return str('No games to conclude!')
 
     for x, game in enumerate(games_today):
         game_mod = list(game)
@@ -192,6 +192,17 @@ def conclude_day(self):
         game_mod[2] = strfdelta(game[4])
 
         games_today[x] = tuple(game_mod)
+
+        game_stores = game_mod[4].strip('][').split(', ')
+
+        game_scores = [game_mod[5], game_mod[7], game_mod[9]]
+        victory_store = game_stores[game_scores.index(max(game_scores))]
+
+        database.command("""
+                        UPDATE store_profiles
+                        SET total_games_won = total_games_won + 1
+                        WHERE store_number = '{0}'
+                    """.format(victory_store))
 
     database.command(
         """
@@ -210,27 +221,35 @@ def conclude_day(self):
     ast_now = utc_now.astimezone(pytz.timezone("America/Halifax"))
 
     store_details = database.query("""
-                SELECT store_number, email, store_name
+                SELECT store_number, email, store_name, total_games_won
                 FROM store_profiles
             """.format(), return_dict=True)
 
+    advice_list = database.query("SELECT * FROM email_advice", True)
+
     for store_profile in store_details:
+
         store_number = store_profile['store_number']
+
+        advice = random.choice(advice_list)
 
         email_text_data = {
             # Per store
             'this_store_name': store_profile['store_name'],
             'date': ast_now.strftime('%A, %B %d, %Y'),
 
-            'this_vic_name': store_profile['store_name'],
-            'this_vic_total': 'N/A',
+            'advice_title': advice['title'],
+            'advice_text': advice['text'],
 
-            'other_vic_name': 'Other Store',
-            'other_vic_total': 'N/A',
+            'this_vic_name': store_profile['store_name'],
+            'this_vic': str(store_profile['total_games_won']),
         }
 
         # store_games : Games played by this store.
         # game_stores : Stores that played the current game.
+
+        # Used to determine front page.
+        all_result_orders = []
 
         store_games = []
         game_number = 0
@@ -242,11 +261,14 @@ def conclude_day(self):
             else:
                 continue
 
-            if game[5] < game[7]:
-                score_order = game_stores
-                score_order.reverse()
-            else:
-                score_order = game_stores
+            zipped = zip([game[5], game[7], game[9]], game_stores)
+            sorted_zip = sorted(zipped, reverse=True)
+
+            score_order = []
+            for tup in sorted_zip:
+                score_order.append(tup[1])
+
+            all_result_orders.append(score_order)
 
             game_times = [game[1], game[2]]
             utc_now = datetime.datetime.utcnow()
@@ -259,10 +281,8 @@ def conclude_day(self):
                 str_time = ast_time.strftime('%I:%M %p')
                 game_times[idx] = str_time
 
-            if score_order[0] == game_stores[0]:
-                place_score_position = [1, 0]
-            else:
-                place_score_position = [0, 1]
+            sorted_sold = sorted([game[5], game[7], game[9]], reverse=True)
+            sorted_transactions = sorted([game[6], game[8], game[10]], reverse=True)
 
             merge_text_data = {
                 # Per game
@@ -270,13 +290,22 @@ def conclude_day(self):
                 'game_time_': game_times[0] + ' - ' + game_times[1],
 
                 'first_store_name_': database.store_profile_lookup(score_order[0], 'store_name'),
-                'first_store_total_sold_': [game[5], game[7]][place_score_position[0]],
-                'first_store_transactions_': [game[6], game[8]][place_score_position[0]],
+                'first_store_total_sold_': sorted_sold[0],
+                'first_store_transactions_': sorted_transactions[0],
 
                 'second_store_name_': database.store_profile_lookup(score_order[1], 'store_name'),
-                'second_store_total_sold_': [game[5], game[7]][place_score_position[1]],
-                'second_store_transactions_': [game[6], game[8]][place_score_position[1]]
+                'second_store_total_sold_': sorted_sold[1],
+                'second_store_transactions_': sorted_transactions[1]
             }
+
+            if len(game_stores) == 3:
+                merge_text_data.update(
+                    {
+                        'third_store_name_': database.store_profile_lookup(score_order[2], 'store_name'),
+                        'third_store_total_sold_': sorted_sold[2],
+                        'third_store_transactions_': sorted_transactions[2]
+                    }
+                )
 
             game_number += 1
             defined_key_merge_text_data = {}
@@ -294,18 +323,61 @@ def conclude_day(self):
 
         else:
 
-            images = {
-                'front_page_image': 'https://media.tenor.com/images/1bcfaadb7ed926566b25b16f256a5d1f/tenor.gif',
-                'advice_image': 'https://media.tenor.com/images/1bcfaadb7ed926566b25b16f256a5d1f/tenor.gif',
+            other_stores = game_stores
+            other_stores.remove(str(store_number))
 
-                'product_image_1': 'https://storage.googleapis.com/dotops.app/email_images/products/' + games_today[0][3] + '.png',
-                'product_image_2': 'https://storage.googleapis.com/dotops.app/email_images/products/' + games_today[1][3] + '.png'
+            for idx, store in enumerate(other_stores):
+                email_text_data.update(
+                    {
+                        'vic_name_' + str(idx+1): str(database.store_profile_lookup(store, 'store_name')),
+                        'vic_' + str(idx+1): str(database.store_profile_lookup(store, 'total_games_won')),
+                    }
+                )
+
+            priority_front_page = database.query("""
+                            SELECT source
+                            FROM email_front_page
+                            WHERE type = 'priority'
+                            AND status = 1
+                        """, return_dict=False)
+
+            if not priority_front_page:
+
+                consistent_place = 'default'
+
+                if all_result_orders[0][0] == all_result_orders[-1][0] == str(store_number):
+                    consistent_place = 'win'
+
+                elif all_result_orders[0][-1] == all_result_orders[-1][-1] == str(store_number):
+                    consistent_place = 'lose'
+
+                else:
+                    consistent_place = 'default'
+
+                front_page = database.query("""
+                                SELECT source
+                                FROM email_front_page
+                                WHERE type = '{0}'
+                                AND status = 1
+                            """.format(consistent_place), return_dict=False)
+
+            else:
+                front_page = priority_front_page
+
+            images = {
+                'front_page_image': random.choice(front_page)[-1],
+                'advice_image': advice['image'],
+
+                'product_image_1': 'https://storage.googleapis.com/dotops.app/email_images/products/' + store_games[0][3] + '.png'
             }
+
+            if len(store_games) == 2:
+                images.update({'product_image_2': 'https://storage.googleapis.com/dotops.app/email_images/products/' + store_games[1][3] + '.png'})
 
             email_master.send_email(
                 'isaiah.gordon.developer@gmail.com',
                 utc_now.strftime('%H:%M:%S'),
-                'app/email_module/email_templates/email_template.html',
+                'app/email_module/email_templates/' + str(len(store_games)) + '_games_template.html',
                 {'text': email_text_data, 'images': images}
             )
 

@@ -39,6 +39,24 @@ dotops_database = mysql.connector.connect(**config)
 cursor = dotops_database.cursor(dictionary=True, buffered=True)
 
 
+def query(sql_query, return_dict):
+
+    query_cursor = dotops_database.cursor(dictionary=return_dict, buffered=True)
+
+    query_cursor.execute(sql_query)
+
+    result = query_cursor.fetchall()
+
+    dotops_database.commit()
+
+    return result
+
+
+def command(sql_query):
+    cursor.execute(sql_query)
+    dotops_database.commit()
+
+
 def store_profile_lookup(store_number, search_key):
     cursor.execute("SELECT {0} FROM store_profiles WHERE store_number = '{1}'".format(search_key, store_number))
     result = cursor.fetchall()
@@ -65,21 +83,3 @@ def find_user(email):
     dotops_database.commit()
 
     return result[0]
-
-
-def query(sql_query, return_dict):
-
-    query_cursor = dotops_database.cursor(dictionary=return_dict, buffered=True)
-
-    query_cursor.execute(sql_query)
-
-    result = query_cursor.fetchall()
-
-    dotops_database.commit()
-
-    return result
-
-
-def command(sql_query):
-    cursor.execute(sql_query)
-    dotops_database.commit()

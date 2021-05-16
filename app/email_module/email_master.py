@@ -10,6 +10,7 @@ def modify_template(html_string, mod_dict):
     soup = BeautifulSoup(html_string, 'html.parser')
 
     for modification in mod_dict['text']:
+        # print(modification)
         text = soup.find(id=modification)
         text.string.replace_with(mod_dict['text'][modification])
 
@@ -18,10 +19,6 @@ def modify_template(html_string, mod_dict):
         image['src'] = mod_dict['images'][modification]
 
     return soup
-
-
-def say_something():
-    print('Howdy!! How ya doing???')
 
 
 def send_email(receiver_email, subject, template, data_dict):
