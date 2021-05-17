@@ -31,7 +31,7 @@ def send_email(receiver_email, subject, template, data_dict):
 
     message = MIMEMultipart("alternative")
     message["Subject"] = subject
-    message["From"] = system_email
+    message["From"] = 'system@dotops.app'
     message["To"] = receiver_email
 
     file = open(template, "r", encoding="utf-8")

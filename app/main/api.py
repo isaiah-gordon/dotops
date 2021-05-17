@@ -225,7 +225,7 @@ def conclude_day(self):
                 FROM store_profiles
             """.format(), return_dict=True)
 
-    advice_list = database.query("SELECT * FROM email_advice", True)
+    advice_list = database.query("SELECT * FROM email_advice WHERE status = 1", True)
 
     for store_profile in store_details:
 
@@ -375,8 +375,8 @@ def conclude_day(self):
                 images.update({'product_image_2': 'https://storage.googleapis.com/dotops.app/email_images/products/' + store_games[1][3] + '.png'})
 
             email_master.send_email(
-                'isaiah.gordon.developer@gmail.com',
-                utc_now.strftime('%H:%M:%S'),
+                store_profile['email'],
+                store_profile['store_name'] + ' Retail Scorecard | ' + ast_now.strftime('%A, %B %d, %Y'),
                 'app/email_module/email_templates/' + str(len(store_games)) + '_games_template.html',
                 {'text': email_text_data, 'images': images}
             )
