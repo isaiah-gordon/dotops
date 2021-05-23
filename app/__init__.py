@@ -1,8 +1,7 @@
 from flask import Flask
-# from flask_socketio import SocketIO
 import os
+from app.main import api, website
 
-# socketio = SocketIO()
 
 def create_app():
     app = Flask(__name__)
@@ -11,7 +10,5 @@ def create_app():
     from .main import main, interface
     app.register_blueprint(main)
     app.register_blueprint(interface, url_prefix='/api')
-
-    # socketio.init_app(app)
 
     return app

@@ -17,13 +17,13 @@ def token_required(f):
 
         try:
             token = request.headers.get('token')
-        except:
+        except ValueError:
             return 'Authentication token is required.'
 
         try:
             decoded_token = jwt.decode(token, current_app.config['SECRET_KEY'])
 
-        except:
+        except jwt.PyJWTError:
             return 'Invalid authentication token.'
 
         return f(decoded_token, *args, **kwargs)
@@ -42,10 +42,17 @@ def generate_token(store_number):
     auth = request.authorization
 
     if auth and (auth.username != secrets.api_user or auth.password != secrets.api_password):
-        return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required'})
+        return make_response('Could not verify!', 401, {'WWW-Authenticate': 'Basic realm="Login Required'})
 
     elif auth and (auth.username == secrets.api_user and auth.password == secrets.api_password):
-        token = jwt.encode({'store': store_number, 'issuer': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1095)}, current_app.config['SECRET_KEY'])
+        token = jwt.encode(
+            {
+                'store': store_number,
+                'issuer': auth.username,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1095)
+            },
+            current_app.config['SECRET_KEY']
+        )
 
         return token
 
@@ -99,8 +106,6 @@ def find_next_game(decoded_token):
 def lookup_stores(self, store_list):
 
     sql_store_list = store_list.replace('[', '(').replace(']', ')')
-    store_list = store_list.strip('][').split(', ')
-
 
     store_details = database.query("""
                 SELECT store_number, store_name, store_short_name, store_image
@@ -120,7 +125,7 @@ def lookup_stores(self, store_list):
 
 @interface.route('/add_score/<game_id>', methods=['POST'])
 @token_required
-def add_score(decoded_token, game_id):
+def add_score(self, game_id):
     json_post = request.get_json()
 
     database.command("""
@@ -343,8 +348,6 @@ def conclude_day(self):
 
             if not priority_front_page:
 
-                consistent_place = 'default'
-
                 if all_result_orders[0][0] == all_result_orders[-1][0] == str(store_number):
                     consistent_place = 'win'
 
@@ -368,11 +371,19 @@ def conclude_day(self):
                 'front_page_image': random.choice(front_page)[-1],
                 'advice_image': advice['image'],
 
-                'product_image_1': 'https://storage.googleapis.com/dotops.app/email_images/products/' + store_games[0][3] + '.png'
+                'product_image_1': 'https://storage.googleapis.com/dotops.app/email_images/products/'
+                                   + store_games[0][3]
+                                   + '.png'
             }
 
             if len(store_games) == 2:
-                images.update({'product_image_2': 'https://storage.googleapis.com/dotops.app/email_images/products/' + store_games[1][3] + '.png'})
+                images.update(
+                    {
+                        'product_image_2': 'https://storage.googleapis.com/dotops.app/email_images/products/'
+                                           + store_games[1][3]
+                                           + '.png'
+                               }
+                )
 
             email_master.send_email(
                 store_profile['email'],
