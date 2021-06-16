@@ -354,7 +354,7 @@ def conclude_day(self):
                 game_times[idx] = str_time
 
             sorted_sold = sorted([game[5], game[7], game[9]], reverse=True)
-            sorted_transactions = sorted([game[6], game[8], game[10]], reverse=True)
+            total_transactions = [game[6], game[8], game[10]]
 
             merge_text_data = {
                 # Per game
@@ -363,11 +363,11 @@ def conclude_day(self):
 
                 'first_store_name_': database.store_profile_lookup(score_order[0], 'store_name'),
                 'first_store_total_sold_': sorted_sold[0],
-                'first_store_transactions_': sorted_transactions[0],
+                'first_store_transactions_': total_transactions[game_stores.index(score_order[0])],
 
                 'second_store_name_': database.store_profile_lookup(score_order[1], 'store_name'),
                 'second_store_total_sold_': sorted_sold[1],
-                'second_store_transactions_': sorted_transactions[1]
+                'second_store_transactions_': total_transactions[game_stores.index(score_order[1])]
             }
 
             if len(game_stores) == 3:
@@ -375,7 +375,7 @@ def conclude_day(self):
                     {
                         'third_store_name_': database.store_profile_lookup(score_order[2], 'store_name'),
                         'third_store_total_sold_': sorted_sold[2],
-                        'third_store_transactions_': sorted_transactions[2]
+                        'third_store_transactions_': total_transactions[game_stores.index(score_order[2])]
                     }
                 )
 
