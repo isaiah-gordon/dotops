@@ -59,6 +59,73 @@ def generate_token(store_number):
     return make_response('Authorization is required!', 401, {'WWW-Authenticate': 'Basic realm="Login Required'})
 
 
+@interface.route('/find_game/<time_tense>', methods=['GET'])
+@token_required
+def find_game(decoded_token, time_tense):
+
+    utc_time = datetime.datetime.utcnow()
+
+    seconds_since_midnight = (utc_time - utc_time.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
+    print("since:   ", seconds_since_midnight)
+
+    utc_delta = datetime.timedelta(seconds=seconds_since_midnight)
+    # utc_delta = seconds_since_midnight
+
+    utc_dt = datetime.datetime.utcnow()
+    utc_day = utc_dt.strftime('%a')
+
+    print("DELTA:   ", utc_delta)
+
+    if time_tense == 'current':
+        game = database.query("""
+                SELECT id, start_time, end_time, product, stores
+                FROM scheduled_games
+    
+                WHERE CURRENT_TIME >= start_time
+                AND CURRENT_TIME <= end_time
+                
+                AND status = 0
+                AND day_of_week = '{0}'
+                AND stores LIKE '%{2}%'
+                
+            """.format(utc_day, utc_delta, decoded_token['store']), return_dict=True)
+
+        print("CURRENT:   ", game)
+
+    elif time_tense == 'next':
+        game = database.query("""
+                SELECT id, start_time, end_time, product, stores
+                FROM scheduled_games
+    
+                WHERE start_time = (
+                SELECT MIN(start_time)
+                FROM scheduled_games
+                WHERE CURRENT_TIME <= start_time
+                )
+                
+                AND status = 0
+                AND day_of_week = '{0}'
+                AND stores LIKE '%{2}%'
+                     
+            """.format(utc_day, utc_delta, decoded_token['store']), return_dict=True)
+
+    else:
+        return make_response('Invalid time tense! Choose "next" or "current" only.', 404)
+
+    if not game:
+        return make_response('', 200)
+
+    game_info = game[0]
+
+    game_info['start_time'] = str(game_info['start_time'])
+    game_info['end_time'] = str(game_info['end_time'])
+    game_info['stores'] = game_info['stores'].strip('][').split(', ')
+
+    json_game_info = json.dumps(game_info)
+
+    return make_response(json_game_info, 200)
+
+
 @interface.route('/find_next_game', methods=['GET'])
 @token_required
 def find_next_game(decoded_token):
