@@ -126,48 +126,6 @@ def find_game(decoded_token, time_tense):
     return make_response(json_game_info, 200)
 
 
-@interface.route('/find_next_game', methods=['GET'])
-@token_required
-def find_next_game(decoded_token):
-
-    utc_time = datetime.datetime.utcnow()
-
-    seconds_since_midnight = (utc_time - utc_time.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
-    utc_delta = datetime.timedelta(seconds=seconds_since_midnight)
-
-    utc_dt = datetime.datetime.utcnow()
-    utc_day = utc_dt.strftime('%a')
-
-    next_game = database.query("""
-            SELECT id, start_time, end_time, product, stores
-            FROM scheduled_games
-
-            WHERE start_time = (
-            SELECT MIN(start_time)
-            FROM scheduled_games
-            WHERE '{1}' <= start_time
-            )
-            
-            AND status = 0
-            AND day_of_week = '{0}'
-            AND stores LIKE '%{2}%'
-            
-        """.format(utc_day, utc_delta, decoded_token['store']), return_dict=True)
-
-    if not next_game:
-        return make_response('', 200)
-
-    next_game = next_game[0]
-
-    next_game['start_time'] = str(next_game['start_time'])
-    next_game['end_time'] = str(next_game['end_time'])
-    next_game['stores'] = next_game['stores'].strip('][').split(', ')
-
-    json_next_game = json.dumps(next_game)
-
-    return make_response(json_next_game, 200)
-
-
 @interface.route('/lookup_stores/<store_list>', methods=['GET'])
 @token_required
 def lookup_stores(self, store_list):
@@ -188,6 +146,21 @@ def lookup_stores(self, store_list):
     json_store_dict = json.dumps(store_dict)
 
     return make_response(json_store_dict, 200)
+
+
+@interface.route('/update_score/<game_id>', methods=['POST'])
+@token_required
+def find_next_game(self, game_id):
+    json_post = request.get_json()
+
+    database.command("""
+                    UPDATE scheduled_games
+                    SET total_sold{0} = {1},
+                    transactions{0} = {2}
+                    WHERE id = {3}
+                """.format(json_post['score_index'], json_post['total_sold'], json_post['transactions'], game_id))
+
+    return make_response('Success 200!', 200)
 
 
 @interface.route('/add_score/<game_id>', methods=['POST'])
