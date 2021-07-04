@@ -326,8 +326,13 @@ def conclude_day(self):
                 str_time = ast_time.strftime('%I:%M %p')
                 game_times[idx] = str_time
 
-            sorted_sold = sorted([game[5], game[7], game[9]], reverse=True)
-            total_transactions = [game[6], game[8], game[10]]
+            # These variable names are temporarily misleading during testing.
+            # sorted_sold is actually sorted u/100 for average sold per 100 transactions.
+            # total_transactions is total product sold.
+            # This is how floor board represents these keys in the database. (floor-board 0.5.5)
+
+            sorted_sold = sorted([game[6], game[8], game[10]], reverse=True)
+            total_transactions = [game[5], game[7], game[9]]
 
             merge_text_data = {
                 # Per game
@@ -380,11 +385,11 @@ def conclude_day(self):
                 )
 
             priority_front_page = database.query("""
-                            SELECT source
+                            SELECT source, subject
                             FROM email_front_page
                             WHERE type = 'priority'
                             AND status = 1
-                        """, return_dict=False)
+                        """, return_dict=True)
 
             if not priority_front_page:
 
@@ -398,17 +403,17 @@ def conclude_day(self):
                     consistent_place = 'default'
 
                 front_page = database.query("""
-                                SELECT source
+                                SELECT source, subject
                                 FROM email_front_page
                                 WHERE type = '{0}'
                                 AND status = 1
-                            """.format(consistent_place), return_dict=False)
+                            """.format(consistent_place), return_dict=True)
 
             else:
                 front_page = priority_front_page
 
             images = {
-                'front_page_image': random.choice(front_page)[-1],
+                'front_page_image': random.choice(front_page['source'])[-1],
                 'advice_image': advice['image'],
 
                 'product_image_1': 'https://storage.googleapis.com/dotops.app/email_images/products/'
@@ -427,7 +432,7 @@ def conclude_day(self):
 
             email_master.send_email(
                 store_profile['email'],
-                store_profile['store_name'] + ' Retail Scorecard | ' + ast_now.strftime('%A, %B %d, %Y'),
+                front_page['subject'] + ' | ' + ast_now.strftime('%A, %B %d, %Y'),
                 'app/email_module/email_templates/' + str(len(store_games)) + '_games_template.html',
                 {'text': email_text_data, 'images': images}
             )
