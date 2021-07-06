@@ -84,7 +84,7 @@ def find_game(decoded_token, time_tense):
                 WHERE CURRENT_TIME >= start_time
                 AND CURRENT_TIME <= end_time
                 
-                AND status = 0
+                AND status = 1
                 AND day_of_week = '{0}'
                 AND stores LIKE '%{2}%'
                 
@@ -103,7 +103,7 @@ def find_game(decoded_token, time_tense):
                 WHERE CURRENT_TIME <= start_time
                 )
                 
-                AND status = 0
+                AND status = 1
                 AND day_of_week = '{0}'
                 AND stores LIKE '%{2}%'
                      
@@ -306,14 +306,14 @@ def conclude_day(self):
             else:
                 continue
 
-            zipped = zip([game[5], game[7], game[9]], game_stores)
-            sorted_zip = sorted(zipped, reverse=True)
-
-            score_order = []
-            for tup in sorted_zip:
-                score_order.append(tup[1])
-
-            all_result_orders.append(score_order)
+            # zipped = zip([game[5], game[7], game[9]], game_stores)
+            # sorted_zip = sorted(zipped, reverse=True)
+            #
+            # score_order = []
+            # for tup in sorted_zip:
+            #     score_order.append(tup[1])
+            #
+            # all_result_orders.append(score_order)
 
             game_times = [game[1], game[2]]
             utc_now = datetime.datetime.utcnow()
@@ -331,8 +331,25 @@ def conclude_day(self):
             # total_transactions is total product sold.
             # This is how floor board represents these keys in the database. (floor-board 0.5.5)
 
-            sorted_sold = sorted([game[6], game[8], game[10]], reverse=True)
-            total_transactions = [game[5], game[7], game[9]]
+            # sorted_sold = sorted([game[6], game[8], game[10]], reverse=True)
+            total_sold = [game[5], game[7], game[9]]
+            total_transactions = [game[6], game[8], game[10]]
+
+            usage_per_hundred_array = []
+            for idx, amount_sold in enumerate(total_sold):
+                usage_per_hundred = amount_sold / (total_transactions[idx] / 100)
+                usage_per_hundred_array.append(round(usage_per_hundred, 3))
+
+            sorted_usage_per_hundred = sorted(usage_per_hundred_array, reverse=True)
+
+            zipped = zip(usage_per_hundred_array, game_stores)
+            sorted_zip = sorted(zipped, reverse=True)
+
+            score_order = []
+            for tup in sorted_zip:
+                score_order.append(tup[1])
+
+            all_result_orders.append(score_order)
 
             merge_text_data = {
                 # Per game
@@ -340,20 +357,20 @@ def conclude_day(self):
                 'game_time_': game_times[0] + ' - ' + game_times[1],
 
                 'first_store_name_': database.store_profile_lookup(score_order[0], 'store_name'),
-                'first_store_total_sold_': sorted_sold[0],
-                'first_store_transactions_': total_transactions[game_stores.index(score_order[0])],
+                'first_store_total_sold_': sorted_usage_per_hundred[0],
+                'first_store_transactions_': total_sold[game_stores.index(score_order[0])],
 
                 'second_store_name_': database.store_profile_lookup(score_order[1], 'store_name'),
-                'second_store_total_sold_': sorted_sold[1],
-                'second_store_transactions_': total_transactions[game_stores.index(score_order[1])]
+                'second_store_total_sold_': sorted_usage_per_hundred[1],
+                'second_store_transactions_': total_sold[game_stores.index(score_order[1])]
             }
 
             if len(game_stores) == 3:
                 merge_text_data.update(
                     {
                         'third_store_name_': database.store_profile_lookup(score_order[2], 'store_name'),
-                        'third_store_total_sold_': sorted_sold[2],
-                        'third_store_transactions_': total_transactions[game_stores.index(score_order[2])]
+                        'third_store_total_sold_': sorted_usage_per_hundred[2],
+                        'third_store_transactions_': total_sold[game_stores.index(score_order[2])]
                     }
                 )
 
@@ -413,7 +430,7 @@ def conclude_day(self):
                 front_page = priority_front_page
 
             images = {
-                'front_page_image': random.choice(front_page['source'])[-1],
+                'front_page_image': front_page[0]['source'],
                 'advice_image': advice['image'],
 
                 'product_image_1': 'https://storage.googleapis.com/dotops.app/email_images/products/'
@@ -432,7 +449,7 @@ def conclude_day(self):
 
             email_master.send_email(
                 store_profile['email'],
-                front_page['subject'] + ' | ' + ast_now.strftime('%A, %B %d, %Y'),
+                front_page[0]['subject'] + ' | ' + ast_now.strftime('%A, %B %d, %Y'),
                 'app/email_module/email_templates/' + str(len(store_games)) + '_games_template.html',
                 {'text': email_text_data, 'images': images}
             )
