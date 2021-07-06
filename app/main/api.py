@@ -222,7 +222,7 @@ def conclude_day(self):
             WHERE day_of_week = '{0}'
             AND total_sold0 > 0
             AND total_sold1 > 0
-            AND status = 0
+            AND status = 1
         """.format(utc_day), return_dict=False)
 
     # if len(games_today) != 2:
