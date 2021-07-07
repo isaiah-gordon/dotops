@@ -240,8 +240,15 @@ def conclude_day(self):
 
         game_stores = game_mod[4].strip('][').split(', ')
 
-        game_scores = [game_mod[5], game_mod[7], game_mod[9]]
-        victory_store = game_stores[game_scores.index(max(game_scores))]
+        total_sold = [game_mod[5], game_mod[7], game_mod[9]]
+        total_transactions = [game_mod[6], game_mod[8], game_mod[10]]
+
+        usage_per_hundred_array = []
+        for idx, amount_sold in enumerate(total_sold):
+            usage_per_hundred = amount_sold / (total_transactions[idx] / 100)
+            usage_per_hundred_array.append(round(usage_per_hundred, 3))
+
+        victory_store = game_stores[usage_per_hundred_array.index(max(usage_per_hundred_array))]
 
         database.command("""
                         UPDATE store_profiles
