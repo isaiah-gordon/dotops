@@ -1,6 +1,6 @@
 # dotops
 
-An API that allows multiple floor-board clients to transfer sales data between McDonald's locations. 
+An API that allows multiple [floor-board](https://github.com/isaiah-gordon/floor-board) clients to transfer sales data between McDonald's locations. 
 
 > **dotops uses [Flask](https://flask.palletsprojects.com/en/2.0.x/) to manage requests and store data in a MySQL database.**
 
