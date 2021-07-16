@@ -53,12 +53,12 @@ dotops will try to connect to a MySQL database with the name `database1` using t
 `scheduled_games`
 
 | id  | status | day_of_week | start_time | end_time | product | stores | total_sold0 | transactions0 | total_sold1 | transactions1 | total_sold2 | transactions2 |
-|::|::|::|::|::|::|::|::|::|::|::|::|::|
+| --- |:------:|:-----------:|:----------:|:--------:|:-------:|:------:|:-----------:|:-------------:|:-----------:|:-------------:|:-----------:|:-------------:|
 
 `game_records`
 
 | id  | date | start_time | end_time | product | stores | total_sold0 | transactions0 | total_sold1 | transactions1 | total_sold2 | transactions2 |
-|::|::|::|::|::|::|::|::|::|::|::|::|
+| --- |:----:|:----------:|:--------:|:-------:|:------:|:-----------:|:-------------:|:-----------:|:-------------:|:-----------:|:-------------:|
 
 `email_front_page`
 
